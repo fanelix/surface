@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+# Data site/privat: JANGAN commit DTM/STR/DXF asli.
+private/
+tests/fixtures/private/
+tests/fixtures/large/

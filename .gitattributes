@@ -1,0 +1,2 @@
+# Fixture dibandingkan byte-per-byte; jangan ubah akhir baris.
+tests/fixtures/** -text

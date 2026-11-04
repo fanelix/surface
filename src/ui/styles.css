@@ -1,0 +1,5 @@
+:root { font-family: system-ui, sans-serif; color: #1d232a; background: #f4f6f8; }
+body { margin: 0; }
+.toolbar { display: flex; gap: 8px; align-items: center; padding: 6px 10px; background: #fff; border-bottom: 1px solid #d5dbe1; flex-wrap: wrap; }
+.toolbar h1 { font-size: 16px; margin: 0 12px 0 0; }
+.hint { color: #6b7580; margin-left: 4px; }
