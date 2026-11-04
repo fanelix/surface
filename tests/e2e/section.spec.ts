@@ -198,3 +198,21 @@ test.describe('M5 · render 3D (dipisah dari tes geometri)', () => {
     expect(colored).toBeGreaterThan(200)
   })
 })
+
+test('Batal di tengah gambar klik-klik menghapus A sementara tanpa mengubah garis aktif', async ({ page }) => {
+  await openApp(page)
+  await loadSurface(page, 'bench_3dface.dxf')
+  await setAB(page, [E0, N0], [E0 + 100, N0])
+  const before = await readAB(page)
+  await page.getByTestId('mode-draw').click()
+  const m = await topMapping(page)
+  const a = m.toScreen(E0 + 20, N0 + 15)
+  await page.mouse.click(a.x, a.y)
+  await expect(page.getByTestId('pending-a')).toHaveCount(0) // garis aktif tetap tampil; A sementara disimpan
+  const b = m.toScreen(E0 + 60, N0 - 10)
+  await page.mouse.move(b.x, b.y, { steps: 3 })
+  await page.getByTestId('cancel-ab').click()
+  expect(await readAB(page)).toEqual(before)
+  await expect(page.getByTestId('mode-navigate')).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.locator('[data-testid=ab-line] line')).not.toHaveAttribute('stroke-dasharray', /.+/)
+})

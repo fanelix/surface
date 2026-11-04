@@ -379,8 +379,10 @@ export function TerrainView(p: Props) {
   }, [cancelTemp])
 
   useEffect(() => {
-    // Ganti mode membatalkan gambar setengah jadi.
+    // Ganti mode membatalkan gambar setengah jadi dan pratinjau sementara.
+    gesture.current = null
     setPendingA(null)
+    setDraft(null)
   }, [p.mode])
 
   const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
