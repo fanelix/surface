@@ -4,13 +4,18 @@
 (Node 22.23.4, npm 10.9.9, Chromium + Playwright 1.63.0), akses GitHub melalui MCP (push branch, membaca run/log
 Actions). Tidak ada akses dashboard Netlify.
 
-**Branch / SHA perubahan kode terakhir:** `claude/amazing-feynman-aaof72` / `6aa19d2` (terverifikasi CI). Commit
-dokumentasi yang memperbarui berkas ini hanya mengubah `docs/STATUS.md`; hasil CI-nya terlihat di tab Checks PR.
+**Branch / SHA perubahan kode terakhir:** `claude/amazing-feynman-aaof72` / `a34dc0d` (terverifikasi CI: run push dan
+pull_request sama-sama hijau). Commit dokumentasi yang memperbarui berkas ini hanya mengubah `docs/STATUS.md`; hasil
+CI-nya terlihat di tab Checks PR.
 
 **SHA yang benar-benar diuji / tautan cek:**
 
 | SHA | Isi | CI (GitHub Actions) | Hasil |
 |---|---|---|---|
+| `a34dc0d` | + `readAB` atomik di e2e (perbaikan tes rapuh) | [run 41852776746](https://github.com/fanelix/surface/actions/runs/41852776746) (push), [run 41852786406](https://github.com/fanelix/surface/actions/runs/41852786406) (PR) | **sukses** keduanya: check + e2e **18 lulus, 1 skip, 0 flaky**; action v7 tanpa peringatan Node 20 |
+| `856c4e0` | + action CI ke v7 (Node 24) | [run 41851899033](https://github.com/fanelix/surface/actions/runs/41851899033) (push), [run 41851907137](https://github.com/fanelix/surface/actions/runs/41851907137) (PR) | **sukses** keduanya; peringatan "Node.js 20 is deprecated" hilang dari log |
+| `ab5f38e` | + hapus ZIP | [run 41851456743](https://github.com/fanelix/surface/actions/runs/41851456743) (push) sukses; [run 41851464417](https://github.com/fanelix/surface/actions/runs/41851464417) (PR) **gagal** | e2e "Batal di tengah gambar" gagal 2×, "geser B, balik arah" flaky: race baca A/B di tes (nilai campuran lama/baru), bukan bug aplikasi → diperbaiki di `a34dc0d` |
+| `87f8ad1` | dokumentasi STATUS | [run 41851041547](https://github.com/fanelix/surface/actions/runs/41851041547) (push), [run 41851055154](https://github.com/fanelix/surface/actions/runs/41851055154) (PR) | **sukses** keduanya |
 | `6aa19d2` | + perbaikan Batal saat menggambar, STATUS, acceptance | [run 41850442335](https://github.com/fanelix/surface/actions/runs/41850442335) | **sukses**: check + e2e **18 lulus, 1 skip** (bench) |
 | `2ea4d7e` | M0–M2, M4–M6, M3 parsial, M7 bench | [run 41849840647](https://github.com/fanelix/surface/actions/runs/41849840647) | **sukses**: check (Vitest 132 + 4 todo) + e2e 17/17, bench di-skip |
 | `c5b8755` | M0–M2, M4–M6 | [run 41849050929](https://github.com/fanelix/surface/actions/runs/41849050929) | **sukses**: check + e2e 17/17 (termasuk render WebGL) |
@@ -68,6 +73,8 @@ dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlif
 | `npm run check` (`2ea4d7e`) | exit 0 — typecheck, lint 0 peringatan, Vitest **132 lulus + 4 todo** (7 berkas), build |
 | `npx playwright test` (`2ea4d7e`) | exit 0 — **17 lulus, 1 skip** (bench, butuh `BENCH=1`) |
 | `npx playwright test` (setelah perbaikan Batal) | exit 0 — **18 lulus, 1 skip**; tes baru terbukti gagal tanpa perbaikan (`stroke-dasharray "6 4"` tertinggal) |
+| `npx playwright test -g "Batal di tengah\|geser B" --repeat-each=15 --workers=4 --retries=0` (sebelum perbaikan `readAB`) | **1 gagal / 30** — race CI tereproduksi |
+| sama, `-g "Batal di tengah\|geser B\|dua klik" --repeat-each=20` (setelah perbaikan `readAB`, `a34dc0d`) | **60/60 lulus**; suite penuh 18 lulus, 1 skip; `npm run check` exit 0 |
 | `BENCH=1 npx playwright test tests/e2e/bench.spec.ts` | exit 0 — lihat tabel kinerja |
 | `npm audit` | 11 moderate, semuanya di rantai dev-tool lint (eslint/typescript-eslint → minimatch); tidak masuk bundle produksi |
 
