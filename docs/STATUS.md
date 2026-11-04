@@ -26,7 +26,28 @@ Actions). Tidak ada akses dashboard Netlify.
 
 **PR:** [fanelix/surface#1](https://github.com/fanelix/surface/pull/1) **di-merge** ke `main` pada 2026-11-04 atas
 permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di riwayat `main`; dikunci ke head
-`005d603` yang terverifikasi). Pemantauan PR dihentikan. **URL preview / produksi:** belum ada (Netlify belum terhubung).
+`005d603` yang terverifikasi). Pemantauan PR dihentikan. [fanelix/surface#2](https://github.com/fanelix/surface/pull/2)
+(pembaruan STATUS) di-merge sebagai `50e7461`.
+
+**URL produksi:** <https://slopeview.netlify.app/> — lihat bagian *Verifikasi produksi Netlify* di bawah.
+
+## Verifikasi produksi Netlify (2026-11-04, dari container sesi ini)
+
+- **Commit yang ter-deploy:** aset `index-C176yzGm.js`, `index-DU_fLwUX.css`, `geometry.worker-Dkjs1ykF.js` diunduh dari
+  produksi dan **identik byte-per-byte** (`cmp`) dengan `npm run build` lokal dari `main` `50e7461` (Node 22.23.4). Kode
+  aplikasi tidak berubah sejak `a34dc0d`; commit sesudahnya hanya dokumentasi.
+- **Header:** `X-Content-Type-Options: nosniff` dan `Referrer-Policy: no-referrer` hadir → `netlify.toml` dari repo dipakai.
+- **E2E terhadap produksi:** `E2E_BASE_URL=https://slopeview.netlify.app npx playwright test --retries=0` → **18 lulus,
+  1 skip** (bench), 0 gagal; termasuk render WebGL dan tes tanpa data keluar.
+- **Audit jaringan** (impor DXF + dua CSV + A–B + seleksi + orbit 3D, tunggu 6 s): **0 request selama alur kerja**;
+  5 GET same-origin saat memuat halaman (`/`, JS, CSS, worker, `/.netlify/scripts/hud`); tidak ada request ke origin
+  lain, tidak ada request non-GET/ber-body; tidak ada error/warning console. Profil bench
+  `[[0,120],[20,120],[40,130],[55,130],[75,140],[100,140]]`.
+- **Temuan:** Netlify menyisipkan skrip HUD (`/.netlify/scripts/hud?variant=public`) yang menampilkan badge
+  "Powered by Netlify" di pojok kanan bawah. Pada 1366×768 badge itu **menutupi kolom Status baris terakhir tabel**
+  yang terlihat. Bukan kode aplikasi; pemilik perlu memeriksa apakah badge/HUD dapat dimatikan di pengaturan situs Netlify.
+- **Belum diverifikasi:** Deploy Preview untuk PR (belum ada PR yang dibuka sejak Netlify terhubung), smoke test dengan
+  berkas site asli (M8), dan laptop target.
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
@@ -52,16 +73,14 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 | M4 | Selesai | `tests/unit/profile.test.ts` 21 + `tests/unit/worker.test.ts` 13 tes |
 | M5 | Selesai (preview DXF) | `tests/e2e/section.spec.ts` 11 tes, termasuk render WebGL terpisah dan Batal di tengah gambar |
 | M6 | Selesai | `tests/unit/objects.test.ts` 19 + `tests/e2e/objects.spec.ts` 6 tes |
-| M7 | **Parsial** | CI + e2e + `netlify.toml` + bench selesai; koneksi Netlify, Deploy Preview, smoke test preview dan benchmark laptop target menunggu pemilik/engineer |
+| M7 | **Parsial** | CI + e2e + `netlify.toml` + bench selesai; Netlify terhubung, produksi lulus e2e 18/18 dan audit jaringan; Deploy Preview PR dan benchmark laptop target masih menunggu |
 | M8 | Belum | Bergantung M3, data kontrol site, dan Netlify |
 
 ## Milestone aktif dan checkbox berikutnya
 
-1. **Pemilik repo (M7):** Netlify → *Add new project → Import an existing project → GitHub* → pilih `fanelix/surface`,
-   branch produksi `main`, build `npm run build`, publish `dist` (sudah di `netlify.toml`, Node 22.23.4). Aktifkan Deploy
-   Preview untuk PR. Setelah deploy pertama dari `main`, salin URL produksi aktual dan SHA deploy ke berkas ini.
-2. **Pada URL deploy:** jalankan `E2E_BASE_URL=<url> npx playwright test` dan smoke test manual dengan berkas lokal; catat
-   hasil di sini.
+1. **Pemilik repo (M7):** periksa badge/HUD Netlify yang menutupi tabel; pastikan Deploy Preview aktif untuk PR. PR
+   berikutnya akan memverifikasi Deploy Preview.
+2. **Selesai:** e2e dan audit jaringan terhadap produksi (lihat *Verifikasi produksi Netlify*).
 3. **Engineer (M3/M8):** lengkapi `docs/acceptance.md` (sampel DTM/STR + DXF surface yang sama, grid/datum, 3 kontrol,
    satu profil A–B, satu bor), tetapkan toleransi lapangan sebelum membandingkan.
 4. **Engineer (M7):** `npm run gen:bench && npm run bench` di laptop kerja target, atau ukur langsung di aplikasi (panel
@@ -132,15 +151,15 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 - **Status Surpac site:** PENDING (`SURPAC_SITE_PENDING`)
 - **Status QA laptop target:** PENDING
-- **Status Netlify:** belum terhubung (kode sudah di `main`, siap di-deploy dengan `netlify.toml`)
-- **URL aktual dan commit deploy:** belum ada
-- **Klaim yang boleh dibuat saat ini:** preview fungsional DXF (setelah Netlify terhubung). Dukungan DTM/STR Surpac
-  belum boleh diklaim.
+- **Status Netlify:** produksi terverifikasi dengan data sintetis (e2e + audit jaringan); Deploy Preview belum diverifikasi
+- **URL aktual dan commit deploy:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`
+- **Klaim yang boleh dibuat saat ini:** preview fungsional DXF di URL di atas. Dukungan DTM/STR Surpac belum boleh
+  diklaim; rilis penuh butuh M3 dan M8.
 
 ## Hambatan, pemilik tindakan, bagian lain yang dapat dilanjutkan
 
 | Hambatan | Pemilik | Dapat dilanjutkan sementara |
 |---|---|---|
 | Sampel DTM/STR + DXF surface yang sama + kontrol site | Engineer geoteknik/survey | Semua alur DXF, titik/bor, penampang |
-| Koneksi Netlify, Deploy Preview, URL produksi | Pemilik repo | CI GitHub Actions sudah memeriksa build dan e2e |
+| Badge/HUD Netlify menutupi tabel; verifikasi Deploy Preview | Pemilik repo | Produksi lulus e2e dan audit jaringan |
 | Benchmark laptop kerja | Engineer | Angka container di atas sebagai indikasi |
