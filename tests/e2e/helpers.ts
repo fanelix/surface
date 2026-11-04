@@ -44,9 +44,25 @@ export async function setAB(page: Page, a: [number, number], b: [number, number]
   await page.getByTestId('apply-ab').click()
 }
 
-export async function readAB(page: Page) {
-  const v = async (id: string) => Number(await page.getByTestId(id).inputValue())
-  return { a: { e: await v('a-e'), n: await v('a-n') }, b: { e: await v('b-e'), n: await v('b-n') } }
+type AB = { a: { e: number; n: number }; b: { e: number; n: number } }
+
+/**
+ * Nilai A/B yang ditampilkan UI. Input E/N diperbarui lewat efek React satu frame setelah aksi,
+ * jadi tunggu dua frame lalu baca keempat input sekaligus (bukan satu per satu dengan await,
+ * yang dapat terbelah oleh render dan mencampur nilai lama/baru).
+ */
+export async function readAB(page: Page): Promise<AB> {
+  return page.evaluate(
+    () =>
+      new Promise<AB>((resolve) =>
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            const v = (id: string) => Number((document.querySelector(`[data-testid="${id}"]`) as HTMLInputElement).value)
+            resolve({ a: { e: v('a-e'), n: v('a-n') }, b: { e: v('b-e'), n: v('b-n') } })
+          }),
+        ),
+      ),
+  )
 }
 
 export async function profileParts(page: Page): Promise<[number, number][][]> {

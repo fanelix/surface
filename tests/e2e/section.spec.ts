@@ -95,9 +95,8 @@ test.describe('M5 · penampang dari surface DXF', () => {
     // Balik A/B: E/N tertukar, profil terbalik (s′ = L − s)
     const before = await profileParts(page)
     await page.getByTestId('reverse-ab').click()
+    await expect.poll(() => readAB(page)).toEqual({ a: ab.b, b: ab.a })
     const rev = await readAB(page)
-    expect(rev.a).toEqual(ab.b)
-    expect(rev.b).toEqual(ab.a)
     await expect.poll(async () => (await profileParts(page))[0]?.[0]?.[1]).toBeCloseTo(before[0]!.at(-1)![1], 3)
 
     // Esc di tengah drag membatalkan perubahan sementara
@@ -107,7 +106,7 @@ test.describe('M5 · penampang dari surface DXF', () => {
     await page.mouse.move(ha.x + 60, ha.y + 50, { steps: 6 })
     await page.keyboard.press('Escape')
     await page.mouse.up()
-    expect(await readAB(page)).toEqual(rev)
+    await expect.poll(() => readAB(page)).toEqual(rev)
   })
 
   test('fixture gap: dua bagian profil [0,40] dan [55,100]', async ({ page }) => {
@@ -212,7 +211,7 @@ test('Batal di tengah gambar klik-klik menghapus A sementara tanpa mengubah gari
   const b = m.toScreen(E0 + 60, N0 - 10)
   await page.mouse.move(b.x, b.y, { steps: 3 })
   await page.getByTestId('cancel-ab').click()
-  expect(await readAB(page)).toEqual(before)
+  await expect.poll(() => readAB(page)).toEqual(before)
   await expect(page.getByTestId('mode-navigate')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-testid=ab-line] line')).not.toHaveAttribute('stroke-dasharray', /.+/)
 })
