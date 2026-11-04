@@ -4,14 +4,15 @@
 (Node 22.23.4, npm 10.9.9, Chromium + Playwright 1.63.0), akses GitHub melalui MCP (push branch, membaca run/log
 Actions). Tidak ada akses dashboard Netlify.
 
-**Branch / SHA perubahan kode terakhir:** `claude/amazing-feynman-aaof72` / `a34dc0d` (terverifikasi CI: run push dan
-pull_request sama-sama hijau). Commit dokumentasi yang memperbarui berkas ini hanya mengubah `docs/STATUS.md`; hasil
-CI-nya terlihat di tab Checks PR.
+**Branch produksi:** `main` di `a9e480f` (merge commit PR #1), CI hijau. Commit kode terakhir: `a34dc0d`.
+**Branch kerja:** `claude/amazing-feynman-aaof72`, dibuat ulang dari `main` setelah merge untuk pekerjaan lanjutan.
 
 **SHA yang benar-benar diuji / tautan cek:**
 
 | SHA | Isi | CI (GitHub Actions) | Hasil |
 |---|---|---|---|
+| `a9e480f` (`main`) | merge commit PR #1, isi identik dengan `005d603` | [run 41853869598](https://github.com/fanelix/surface/actions/runs/41853869598) (push ke `main`) | **sukses**: check + e2e |
+| `005d603` | dokumentasi STATUS (head PR saat merge) | [run 41853202652](https://github.com/fanelix/surface/actions/runs/41853202652) (push), [run 41853212294](https://github.com/fanelix/surface/actions/runs/41853212294) (PR) | **sukses** keduanya: check + e2e |
 | `a34dc0d` | + `readAB` atomik di e2e (perbaikan tes rapuh) | [run 41852776746](https://github.com/fanelix/surface/actions/runs/41852776746) (push), [run 41852786406](https://github.com/fanelix/surface/actions/runs/41852786406) (PR) | **sukses** keduanya: check + e2e **18 lulus, 1 skip, 0 flaky**; action v7 tanpa peringatan Node 20 |
 | `856c4e0` | + action CI ke v7 (Node 24) | [run 41851899033](https://github.com/fanelix/surface/actions/runs/41851899033) (push), [run 41851907137](https://github.com/fanelix/surface/actions/runs/41851907137) (PR) | **sukses** keduanya; peringatan "Node.js 20 is deprecated" hilang dari log |
 | `ab5f38e` | + hapus ZIP | [run 41851456743](https://github.com/fanelix/surface/actions/runs/41851456743) (push) sukses; [run 41851464417](https://github.com/fanelix/surface/actions/runs/41851464417) (PR) **gagal** | e2e "Batal di tengah gambar" gagal 2×, "geser B, balik arah" flaky: race baca A/B di tes (nilai campuran lama/baru), bukan bug aplikasi → diperbaiki di `a34dc0d` |
@@ -23,8 +24,9 @@ CI-nya terlihat di tab Checks PR.
 | `aa9453c` | M0–M2 | [run 41845204613](https://github.com/fanelix/surface/actions/runs/41845204613) | **gagal** e2e: `Timed out waiting 180000ms from config.webServer` → diperbaiki di `b70474d` |
 | `3af52a2`, `c40632e` | M1, M0 | run 2, 1 | dibatalkan oleh `cancel-in-progress` (job check `3af52a2` sukses sebelum batal) |
 
-**PR:** [fanelix/surface#1](https://github.com/fanelix/surface/pull/1) `claude/amazing-feynman-aaof72` → `main`, terbuka,
-dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlify belum terhubung).
+**PR:** [fanelix/surface#1](https://github.com/fanelix/surface/pull/1) **di-merge** ke `main` pada 2026-11-04 atas
+permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di riwayat `main`; dikunci ke head
+`005d603` yang terverifikasi). Pemantauan PR dihentikan. **URL preview / produksi:** belum ada (Netlify belum terhubung).
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
@@ -57,8 +59,8 @@ dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlif
 
 1. **Pemilik repo (M7):** Netlify → *Add new project → Import an existing project → GitHub* → pilih `fanelix/surface`,
    branch produksi `main`, build `npm run build`, publish `dist` (sudah di `netlify.toml`, Node 22.23.4). Aktifkan Deploy
-   Preview untuk PR; PR #1 sudah terbuka. Salin URL preview aktual dari cek Netlify ke berkas ini.
-2. **Pada URL preview:** jalankan `E2E_BASE_URL=<url> npx playwright test` dan smoke test manual dengan berkas lokal; catat
+   Preview untuk PR. Setelah deploy pertama dari `main`, salin URL produksi aktual dan SHA deploy ke berkas ini.
+2. **Pada URL deploy:** jalankan `E2E_BASE_URL=<url> npx playwright test` dan smoke test manual dengan berkas lokal; catat
    hasil di sini.
 3. **Engineer (M3/M8):** lengkapi `docs/acceptance.md` (sampel DTM/STR + DXF surface yang sama, grid/datum, 3 kontrol,
    satu profil A–B, satu bor), tetapkan toleransi lapangan sebelum membandingkan.
@@ -130,7 +132,7 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 - **Status Surpac site:** PENDING (`SURPAC_SITE_PENDING`)
 - **Status QA laptop target:** PENDING
-- **Status Netlify:** belum terhubung
+- **Status Netlify:** belum terhubung (kode sudah di `main`, siap di-deploy dengan `netlify.toml`)
 - **URL aktual dan commit deploy:** belum ada
 - **Klaim yang boleh dibuat saat ini:** preview fungsional DXF (setelah Netlify terhubung). Dukungan DTM/STR Surpac
   belum boleh diklaim.
@@ -142,4 +144,3 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 | Sampel DTM/STR + DXF surface yang sama + kontrol site | Engineer geoteknik/survey | Semua alur DXF, titik/bor, penampang |
 | Koneksi Netlify, Deploy Preview, URL produksi | Pemilik repo | CI GitHub Actions sudah memeriksa build dan e2e |
 | Benchmark laptop kerja | Engineer | Angka container di atas sebagai indikasi |
-| Merge ke `main` | Pemilik repo | — |
