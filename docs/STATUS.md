@@ -25,9 +25,12 @@ dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlif
 
 - Naikkan `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` ke versi yang berjalan di Node 24
   (runner memberi peringatan deprecation Node 20). Belum diubah karena versi target belum diverifikasi di sesi ini.
-- Hapus `Paket_Claude_Code_Topografi.zip` dari root setelah pemilik setuju; isinya (rencana + fixture) sudah ada
-  sebagai berkas biasa di repo dan identik (diff kosong untuk rencana).
 - Adapter DTM/STR → mesh (M3) setelah sampel Surpac terverifikasi tersedia.
+
+## Diterapkan atas permintaan pemilik
+
+- `Paket_Claude_Code_Topografi.zip` dihapus dari root. Sebelum dihapus, kedelapan isinya (`IMPLEMENTATION_PLAN.md` dan
+  tujuh berkas `tests/fixtures/synthetic/`) diverifikasi identik byte-per-byte (`cmp`) dengan berkas di repo.
 
 ## Milestone selesai (diterapkan dan teruji)
 
