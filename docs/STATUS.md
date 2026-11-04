@@ -23,14 +23,16 @@ dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlif
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
-- Naikkan `actions/checkout`, `actions/setup-node`, `actions/upload-artifact` ke versi yang berjalan di Node 24
-  (runner memberi peringatan deprecation Node 20). Belum diubah karena versi target belum diverifikasi di sesi ini.
 - Adapter DTM/STR → mesh (M3) setelah sampel Surpac terverifikasi tersedia.
 
 ## Diterapkan atas permintaan pemilik
 
 - `Paket_Claude_Code_Topografi.zip` dihapus dari root. Sebelum dihapus, kedelapan isinya (`IMPLEMENTATION_PLAN.md` dan
   tujuh berkas `tests/fixtures/synthetic/`) diverifikasi identik byte-per-byte (`cmp`) dengan berkas di repo.
+
+- CI memakai `actions/checkout@v7`, `actions/setup-node@v7`, `actions/upload-artifact@v7` (semua `runs.using: node24`,
+  diverifikasi dari `action.yml` tiap tag). `upload-artifact@v5` masih `node20`, sehingga minimal v6 diperlukan. Perubahan
+  breaking v5–v7 tidak mengenai workflow ini: tidak ada `pull_request_target`/`registry-url`, `cache: npm` eksplisit.
 
 ## Milestone selesai (diterapkan dan teruji)
 
