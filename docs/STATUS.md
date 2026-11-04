@@ -4,21 +4,22 @@
 (Node 22.23.4, npm 10.9.9, Chromium + Playwright 1.63.0), akses GitHub melalui MCP (push branch, membaca run/log
 Actions). Tidak ada akses dashboard Netlify.
 
-**Branch / SHA perubahan terakhir:** `claude/amazing-feynman-aaof72`. SHA terakhir yang terverifikasi CI: `2ea4d7e`.
-Commit yang memuat berkas ini (perbaikan Batal saat menggambar + dokumentasi) menyusul di atasnya; hasil CI-nya
-dibaca dari tab Actions untuk SHA tersebut dan dicatat pada sesi berikutnya.
+**Branch / SHA perubahan kode terakhir:** `claude/amazing-feynman-aaof72` / `6aa19d2` (terverifikasi CI). Commit
+dokumentasi yang memperbarui berkas ini hanya mengubah `docs/STATUS.md`; hasil CI-nya terlihat di tab Checks PR.
 
 **SHA yang benar-benar diuji / tautan cek:**
 
 | SHA | Isi | CI (GitHub Actions) | Hasil |
 |---|---|---|---|
+| `6aa19d2` | + perbaikan Batal saat menggambar, STATUS, acceptance | [run 41850442335](https://github.com/fanelix/surface/actions/runs/41850442335) | **sukses**: check + e2e **18 lulus, 1 skip** (bench) |
 | `2ea4d7e` | M0–M2, M4–M6, M3 parsial, M7 bench | [run 41849840647](https://github.com/fanelix/surface/actions/runs/41849840647) | **sukses**: check (Vitest 132 + 4 todo) + e2e 17/17, bench di-skip |
 | `c5b8755` | M0–M2, M4–M6 | [run 41849050929](https://github.com/fanelix/surface/actions/runs/41849050929) | **sukses**: check + e2e 17/17 (termasuk render WebGL) |
 | `b70474d` | M0, M1, M2, M4 + perbaikan host preview | [run 41846428841](https://github.com/fanelix/surface/actions/runs/41846428841) | **sukses**: check + e2e |
 | `aa9453c` | M0–M2 | [run 41845204613](https://github.com/fanelix/surface/actions/runs/41845204613) | **gagal** e2e: `Timed out waiting 180000ms from config.webServer` → diperbaiki di `b70474d` |
 | `3af52a2`, `c40632e` | M1, M0 | run 2, 1 | dibatalkan oleh `cancel-in-progress` (job check `3af52a2` sukses sebelum batal) |
 
-**PR:** belum dibuat (menunggu permintaan pemilik repo). **URL preview:** belum ada (Netlify belum terhubung).
+**PR:** [fanelix/surface#1](https://github.com/fanelix/surface/pull/1) `claude/amazing-feynman-aaof72` → `main`, terbuka,
+dipantau agen. Merge diputuskan pemilik repo. **URL preview:** belum ada (Netlify belum terhubung).
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
@@ -46,8 +47,7 @@ dibaca dari tab Actions untuk SHA tersebut dan dicatat pada sesi berikutnya.
 
 1. **Pemilik repo (M7):** Netlify → *Add new project → Import an existing project → GitHub* → pilih `fanelix/surface`,
    branch produksi `main`, build `npm run build`, publish `dist` (sudah di `netlify.toml`, Node 22.23.4). Aktifkan Deploy
-   Preview untuk PR. Minta agen membuka PR dari `claude/amazing-feynman-aaof72` ke `main` bila diinginkan; salin URL preview
-   aktual dari cek Netlify ke berkas ini.
+   Preview untuk PR; PR #1 sudah terbuka. Salin URL preview aktual dari cek Netlify ke berkas ini.
 2. **Pada URL preview:** jalankan `E2E_BASE_URL=<url> npx playwright test` dan smoke test manual dengan berkas lokal; catat
    hasil di sini.
 3. **Engineer (M3/M8):** lengkapi `docs/acceptance.md` (sampel DTM/STR + DXF surface yang sama, grid/datum, 3 kontrol,
