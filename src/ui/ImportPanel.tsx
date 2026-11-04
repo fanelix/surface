@@ -157,7 +157,7 @@ export function ImportPanel(p: Props) {
             </details>
           )}
           {(p.timing.importMs !== null || p.timing.profileMs !== null) && (
-            <p className="muted" data-testid="timing">
+            <p className="muted" data-testid="timing" data-import-ms={p.timing.importMs ?? ''} data-profile-ms={p.timing.profileMs ?? ''}>
               {p.timing.importMs !== null && <>Impor sampai frame pertama: {fmtMs(p.timing.importMs)}. </>}
               {p.timing.profileMs !== null && <>Pembaruan profil terakhir: {fmtMs(p.timing.profileMs)}.</>}
             </p>
