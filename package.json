@@ -13,7 +13,7 @@
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "build": "vite build",
-    "preview": "vite preview --port 4173 --strictPort",
+    "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "gen:large": "node scripts/gen-large-dxf.mjs"
