@@ -3,13 +3,13 @@ import { ImportCancelledError, parseDxfAsync } from './dxf'
 import type { DxfParseOk } from './dxf'
 import { checkSurfaceSize, decodeText, kindFromName, looksBinaryDxf, readSurfaceFile } from './surface'
 import type { FileLike } from './surface'
-import { detectSurpacVariant, pairSurpacFiles, surpacImportIssues } from './surpac'
+import { pairSurpacFiles, parseSurpacPair } from './surpac'
 import type { NamedText } from './surpac'
 
 export type OpenProgress = (phase: 'baca' | 'urai', fraction: number) => void
 
 export type OpenResult =
-  | { ok: true; format: 'dxf'; dxf: DxfParseOk; bytes: number }
+  | { ok: true; format: 'dxf' | 'surpac'; dxf: DxfParseOk; bytes: number }
   | { ok: false; issues: ValidationIssue[]; needsPairConfirmation?: { dtm: string; str: string } }
 
 export type OpenOptions = {
@@ -42,8 +42,13 @@ export async function openSurfaceFiles(files: FileLike[], opts: OpenOptions = {}
     for (const t of read) t.text = decodeText(t.bytes)
     const p = pairSurpacFiles(read, opts.confirmPair)
     if (!p.ok) return { ok: false, issues: p.issues, ...(p.needsConfirmation ? { needsPairConfirmation: p.needsConfirmation } : {}) }
-    const v = detectSurpacVariant(p.pair)
-    return { ok: false, issues: surpacImportIssues(p.pair, v) }
+    const res = await parseSurpacPair(p.pair, {
+      ...(opts.signal ? { signal: opts.signal } : {}),
+      ...(opts.yieldFn ? { yieldFn: opts.yieldFn } : {}),
+      onProgress: (x) => opts.onProgress?.('urai', x),
+    })
+    if (!res.ok) return { ok: false, issues: res.issues }
+    return { ok: true, format: 'surpac', dxf: res, bytes: p.pair.dtm.bytes.byteLength + p.pair.str.bytes.byteLength }
   }
   const f = read[0]!
   if (kinds[0] !== 'dxf') {
