@@ -49,6 +49,25 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 - **Belum diverifikasi:** Deploy Preview untuk PR (belum ada PR yang dibuka sejak Netlify terhubung), smoke test dengan
   berkas site asli (M8), dan laptop target.
 
+## Serah terima ke pelaksana berikutnya (2026-11-05)
+
+- **Branch kerja:** `claude/amazing-feynman-aaof72`, head `1d100f1`, 2 commit di atas `main` `50e7461`.
+- **PR terbuka:** [fanelix/surface#3](https://github.com/fanelix/surface/pull/3) — verifikasi produksi + M3 adapter Surpac.
+  Saat serah terima: job `check` sukses di run push dan PR; job e2e masih berjalan; belum di-merge. Merge diputuskan
+  pemilik repo.
+- **Deploy Preview PR #3** (dari komentar Netlify bot): <https://deploy-preview-3--slopeview.netlify.app> untuk commit
+  `1d100f1`. Dari container agen host ini menjawab **HTTP 401** (kemungkinan dilindungi login Netlify) → belum diuji.
+  Check Netlify di PR: *Header rules* sukses, *Redirect rules* dan *Pages changed* netral.
+- **Data site TIDAK ada di repo.** `pa_tes.dtm`, `pa_tes.str`, `pa_tes.dxf`, `pa_tes.ssi` hanya ada di container sesi
+  sebelumnya (`private/site/`, diabaikan git) dan hilang bersama container. Untuk menjalankan
+  `tests/unit/surpac-site.test.ts`, minta pemilik melampirkan ulang berkasnya lalu simpan di `private/site/` dengan nama
+  tersebut. Jangan pernah meng-commit data site atau koordinatnya.
+- **Jaringan container:** `slopeview.netlify.app` harus diizinkan di pengaturan Network access environment agar e2e
+  terhadap produksi bisa dijalankan (`E2E_BASE_URL=https://slopeview.netlify.app npx playwright test`).
+- **Langkah berikutnya yang siap:** (1) pantau PR #3 sampai CI hijau, minta persetujuan merge ke pemilik; (2) setelah
+  merge, verifikasi produksi ulang (hash aset = build `main`, e2e, audit jaringan) dan catat SHA deploy; (3) M8: isi
+  `docs/acceptance.md` §4 begitu engineer memberi angka Surpac, kontrol, profil A–B, toleransi, dan DXF muka segitiga.
+
 ## Perubahan yang diusulkan namun belum diterapkan
 
 - Pembandingan DTM/STR dan DXF-TIN terhadap Surpac (M8) setelah engineer memberi kontrol, profil acuan, dan
