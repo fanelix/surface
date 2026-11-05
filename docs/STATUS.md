@@ -1,16 +1,19 @@
 # Status implementasi
 
-**Pelaksana / mode:** Claude Code, agen repo di sesi cloud. Kemampuan: baca/tulis repo, menjalankan perintah dan tes
-(Node 22.23.4, npm 10.9.9, Chromium + Playwright 1.63.0), akses GitHub melalui MCP (push branch, membaca run/log
-Actions). Tidak ada akses dashboard Netlify.
+**Pelaksana / mode (sesi lanjutan 2026-11-05):** OpenAI Codex, agen repo. Kemampuan terverifikasi: baca/tulis
+checkout lokal; akses GitHub dengan izin `pull`/`push`; membaca PR, status CI, job dan log Actions; menjalankan
+typecheck, lint, Vitest, build dan Playwright. Runtime verifikasi utama Node 22.23.4, npm 10.9.9,
+Playwright 1.63.0 / Chromium headless shell 153.0.8010.12. Tidak ada akses dashboard Netlify.
 
-**Branch produksi:** `main` di `a9e480f` (merge commit PR #1), CI hijau. Commit kode terakhir: `a34dc0d`.
-**Branch kerja:** `claude/amazing-feynman-aaof72`, dibuat ulang dari `main` setelah merge untuk pekerjaan lanjutan.
+**Branch produksi:** `main` di `50e7461b0176ebf2f617d8004ec9dc482541dd67` (diperiksa ulang dari remote).
+**Branch kerja:** `claude/amazing-feynman-aaof72`; head awal sesi `cfa0e54c30590cd6dbe8ff37abf7d11579919fe4`.
+Commit kode adapter terakhir `1d100f1`; perubahan sesi ini hanya dokumentasi. PR #3 tetap terbuka; **belum di-merge**.
 
 **SHA yang benar-benar diuji / tautan cek:**
 
 | SHA | Isi | CI (GitHub Actions) | Hasil |
 |---|---|---|---|
+| `cfa0e54` (head PR #3 saat awal sesi) | adapter M3 + serah terima | [run 41964695917](https://github.com/fanelix/surface/actions/runs/41964695917) (PR, run 28) | **sukses**: check + e2e. Log checkout menunjukkan merge uji `9fd098fdcb30f9048fc7928203f6e7991c644ab6` = head `cfa0e54` + base `50e7461`; bukan merge ke `main`. Unit 141 lulus, 4 skip site, 1 todo; E2E 20 lulus, 1 skip bench |
 | `a9e480f` (`main`) | merge commit PR #1, isi identik dengan `005d603` | [run 41853869598](https://github.com/fanelix/surface/actions/runs/41853869598) (push ke `main`) | **sukses**: check + e2e |
 | `005d603` | dokumentasi STATUS (head PR saat merge) | [run 41853202652](https://github.com/fanelix/surface/actions/runs/41853202652) (push), [run 41853212294](https://github.com/fanelix/surface/actions/runs/41853212294) (PR) | **sukses** keduanya: check + e2e |
 | `a34dc0d` | + `readAB` atomik di e2e (perbaikan tes rapuh) | [run 41852776746](https://github.com/fanelix/surface/actions/runs/41852776746) (push), [run 41852786406](https://github.com/fanelix/surface/actions/runs/41852786406) (PR) | **sukses** keduanya: check + e2e **18 lulus, 1 skip, 0 flaky**; action v7 tanpa peringatan Node 20 |
@@ -31,7 +34,79 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 **URL produksi:** <https://slopeview.netlify.app/> — lihat bagian *Verifikasi produksi Netlify* di bawah.
 
-## Verifikasi produksi Netlify (2026-11-04, dari container sesi ini)
+## Verifikasi sesi Codex (2026-11-05)
+
+### Diterapkan
+
+- Memperbarui status CI, kemampuan sesi dan serah terima di dokumen ini. CI pada head awal sudah hijau;
+  tidak ada perbaikan kode atau perubahan konfigurasi aplikasi/CI yang diperlukan.
+- `docs/acceptance.md` §2 dan §4 menandai toleransi serta pembandingan M8 sebagai **PENDING** secara eksplisit.
+  Tidak menambah angka acuan, selisih atau PASS/FAIL. Memperbaiki pemisah kolom header selisih absolut.
+- Berkas site tidak dilampirkan pada sesi ini. Tidak ada data site atau koordinat site baru yang disimpan/di-commit.
+
+### Teruji
+
+- **CI PR #3:** run 41964695917 sudah `completed/success`. Log kedua job dibaca melalui GitHub:
+  [check, job 127038879268](https://github.com/fanelix/surface/actions/runs/41964695917/job/127038879268)
+  dan [e2e, job 127039176621](https://github.com/fanelix/surface/actions/runs/41964695917/job/127039176621).
+- **Lokal pada `cfa0e54`:** `npm ci` exit 0; `npm run check` exit 0 (141 lulus, 4 skip site, 1 todo; typecheck,
+  lint dan build sukses). `npx playwright test` exit 0: **20 lulus, 1 skip** (bench), termasuk render WebGL.
+- `npx vitest run tests/unit/surpac-site.test.ts` exit 0 tetapi **4 skip**, karena `private/site/` tidak tersedia.
+  Ini **bukan** verifikasi ulang sampel `pa_tes`; angka site di bagian historis berasal dari sesi Claude sebelumnya.
+- **Produksi:** HTTP 200. Build dilakukan di worktree terpisah dari `main` `50e7461`, dengan lockfile yang sama
+  dan Node/npm sesuai `.nvmrc`. Ketiga aset yang dirujuk HTML/worker produksi identik byte-per-byte dengan build:
+
+| Aset produksi = build `main` | Byte | SHA-256 kedua salinan |
+|---|---:|---|
+| `index-C176yzGm.js` | 840.331 | `666901ad3ed22bd5fce7dcf3c20b0edd3898c8cd029c2f8c5cbabcd762d9354b` |
+| `index-DU_fLwUX.css` | 5.311 | `655d332efaaa5c09b9e16c56c52201ea206a43e643cdcc39cabead9f4e4fb6de` |
+| `geometry.worker-Dkjs1ykF.js` | 28.449 | `c4d6bb612b07e5951e2f5a4c86c1ef3c49b71b6d0dc3c7f8d90c9bd316c78e9c` |
+
+Kesamaan ini membuktikan kesetaraan aset aplikasi dengan build `main`; tidak membuktikan metadata commit internal
+deploy Netlify, yang tidak tersedia melalui dashboard pada sesi ini. Header `nosniff` dan `no-referrer` hadir.
+
+- **E2E produksi dari suite `main` `50e7461`:** **18 lulus, 1 skip** (bench), 0 gagal, termasuk WebGL;
+  waktu 3,0 menit, tanpa retry. Hasil ini memakai adapter proxy sementara yang dijelaskan di bawah.
+- **Audit jaringan produksi:** impor DXF sintetis + dua CSV, A–B, seleksi BH-01, orbit 3D dan tunggu 6 s.
+  Lima GET same-origin saat memuat halaman (`/`, JS, CSS, worker dan `/.netlify/scripts/hud?variant=public`);
+  **0 request selama alur kerja**, 0 origin lain, 0 non-GET/ber-body, 0 WebSocket, 0 request gagal,
+  0 error/warning console. Profil sintetis cocok dengan `expected.json`.
+- **Deploy Preview:** check Netlify `success`, URL yang dikembalikan GitHub
+  <https://deploy-preview-3--slopeview.netlify.app> masih **HTTP 401** dari container; alur aplikasi preview belum diuji.
+
+### Batas lingkungan pengujian
+
+Unduhan Chromium melalui CDN Playwright mengembalikan HTML `Site Unavailable`; headless shell versi yang tepat
+diambil dari penyimpanan resmi Chrome for Testing, diperiksa ukuran/MD5 terhadap header upstream dan integritas ZIP.
+Browser lokal kemudian berjalan normal. Perintah E2E produksi standar sempat gagal saat navigasi
+(`ERR_EMPTY_RESPONSE`): Chromium tidak otomatis memakai proxy environment. Setelah proxy dipasang eksplisit,
+terlihat `ERR_CERT_AUTHORITY_INVALID` dari sertifikat proxy. Adapter Playwright **sementara, diabaikan git**
+memakai proxy environment dan `ignoreHTTPSErrors: true`. Audit jaringan memakai pengaturan sesi yang sama.
+Tidak ada perubahan ini dalam konfigurasi aplikasi atau CI; validitas rantai sertifikat TLS publik bukan hasil uji sesi ini.
+
+| Perintah sesi ini | Checkout | Hasil / exit code |
+|---|---|---|
+| `npm ci` | branch kerja `cfa0e54` | 0 |
+| `npm run check` | branch kerja `cfa0e54` | 0; 141 unit lulus, 4 skip, 1 todo; typecheck/lint/build lulus. Dijalankan pada Node awal 24.22.1 lalu ulang dengan Node 22.23.4 sesuai repo |
+| `npx playwright test` | branch kerja `cfa0e54` | 0; 20 lulus, 1 skip |
+| `npx vitest run tests/unit/surpac-site.test.ts` | branch kerja `cfa0e54` | 0; 4 skip, bukan PASS site |
+| `npm run build` | worktree `main` `50e7461` | 0; Node 22.23.4; 3/3 hash aset sama dengan produksi |
+| `E2E_BASE_URL=https://slopeview.netlify.app npx playwright test` | worktree `main` `50e7461` | 1; 18 gagal navigasi sebelum alur aplikasi karena proxy browser belum dipasang; 1 skip |
+| `E2E_BASE_URL=https://slopeview.netlify.app npx playwright test --config private/verification/production.config.ts` | worktree `main` `50e7461` | 0; **18 lulus, 1 skip**; adapter sementara mewarisi suite repo, menambah `proxy` environment dan `ignoreHTTPSErrors: true` saja |
+| `node private/verification/production-audit.mjs` | worktree `main` `50e7461` | 0; audit sintetis di atas, konfigurasi proxy/sertifikat sesi yang sama |
+
+Adapter dan log mentah hanya berkas sesi lokal diabaikan git, bukan dependensi repo. Tidak ada perubahan fixture atau
+ekspektasi tes produksi. Pada lingkungan tanpa proxy, mulai kembali dengan perintah standar.
+
+### Usulan / pekerjaan PENDING
+
+- M8: tunggu angka Surpac, grid/datum, ≥3 kontrol, profil A–B, titik/bor acuan, DXF muka segitiga dari surface yang sama,
+  serta toleransi proyek yang ditetapkan engineer **sebelum** menghitung selisih.
+- M7: uji laptop target, periksa HUD/badge Netlify dan akses Deploy Preview bersama pemilik. Kehadiran skrip HUD
+  diperiksa ulang; posisi badge yang menutupi tabel pada sesi sebelumnya belum dinilai ulang secara visual.
+- Merge PR #3 menunggu persetujuan pemilik repo. Sesi ini tidak melakukan merge atau mengaktifkan auto-merge.
+
+## Verifikasi produksi Netlify (historis: 2026-11-04, sesi Claude)
 
 - **Commit yang ter-deploy:** aset `index-C176yzGm.js`, `index-DU_fLwUX.css`, `geometry.worker-Dkjs1ykF.js` diunduh dari
   produksi dan **identik byte-per-byte** (`cmp`) dengan `npm run build` lokal dari `main` `50e7461` (Node 22.23.4). Kode
@@ -49,24 +124,27 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 - **Belum diverifikasi:** Deploy Preview untuk PR (belum ada PR yang dibuka sejak Netlify terhubung), smoke test dengan
   berkas site asli (M8), dan laptop target.
 
-## Serah terima ke pelaksana berikutnya (2026-11-05)
+## Serah terima ke pelaksana berikutnya (diperbarui Codex, 2026-11-05)
 
-- **Branch kerja:** `claude/amazing-feynman-aaof72`, head `1d100f1`, 2 commit di atas `main` `50e7461`.
-- **PR terbuka:** [fanelix/surface#3](https://github.com/fanelix/surface/pull/3) — verifikasi produksi + M3 adapter Surpac.
-  Saat serah terima: job `check` sukses di run push dan PR; job e2e masih berjalan; belum di-merge. Merge diputuskan
-  pemilik repo.
-- **Deploy Preview PR #3** (dari komentar Netlify bot): <https://deploy-preview-3--slopeview.netlify.app> untuk commit
-  `1d100f1`. Dari container agen host ini menjawab **HTTP 401** (kemungkinan dilindungi login Netlify) → belum diuji.
-  Check Netlify di PR: *Header rules* sukses, *Redirect rules* dan *Pages changed* netral.
-- **Data site TIDAK ada di repo.** `pa_tes.dtm`, `pa_tes.str`, `pa_tes.dxf`, `pa_tes.ssi` hanya ada di container sesi
-  sebelumnya (`private/site/`, diabaikan git) dan hilang bersama container. Untuk menjalankan
-  `tests/unit/surpac-site.test.ts`, minta pemilik melampirkan ulang berkasnya lalu simpan di `private/site/` dengan nama
-  tersebut. Jangan pernah meng-commit data site atau koordinatnya.
-- **Jaringan container:** `slopeview.netlify.app` harus diizinkan di pengaturan Network access environment agar e2e
-  terhadap produksi bisa dijalankan (`E2E_BASE_URL=https://slopeview.netlify.app npx playwright test`).
-- **Langkah berikutnya yang siap:** (1) pantau PR #3 sampai CI hijau, minta persetujuan merge ke pemilik; (2) setelah
-  merge, verifikasi produksi ulang (hash aset = build `main`, e2e, audit jaringan) dan catat SHA deploy; (3) M8: isi
-  `docs/acceptance.md` §4 begitu engineer memberi angka Surpac, kontrol, profil A–B, toleransi, dan DXF muka segitiga.
+- **Branch kerja:** `claude/amazing-feynman-aaof72`; head awal sesi `cfa0e54`, kode adapter `1d100f1`.
+  Baca SHA head dokumentasi terbaru dari remote; jangan menganggap SHA awal sesi sebagai head berikutnya.
+- **PR terbuka:** [fanelix/surface#3](https://github.com/fanelix/surface/pull/3). CI untuk head awal `cfa0e54`
+  **hijau** (check + E2E, run 41964695917); kedua log sudah dibaca. Perubahan sesi ini hanya dua dokumen.
+  Periksa CI pada head terbaru sebelum melanjutkan. **Jangan merge tanpa persetujuan pemilik.**
+- **Produksi:** <https://slopeview.netlify.app/> menjawab HTTP 200; tiga hash aset sama dengan build `main`
+  `50e7461`; E2E **18 lulus, 1 skip**; audit jaringan sintetis 0 request selama alur kerja.
+  Lihat hasil dan batas proxy di *Verifikasi sesi Codex*.
+  Produksi tetap versi sebelum adapter Surpac PR #3; tes produksi memakai suite dari `main`, bukan dua tes Surpac baru.
+- **Deploy Preview:** <https://deploy-preview-3--slopeview.netlify.app> masih HTTP 401. Check deploy GitHub sukses
+  tidak berarti alur aplikasi preview sudah diuji.
+- **Data site TIDAK ada di repo maupun sesi ini.** Bila pemilik melampirkan ulang `pa_tes.dtm`, `.str`, `.dxf`,
+  simpan hanya di `private/site/` (sudah terverifikasi diabaikan git), lalu jalankan
+  `npx vitest run tests/unit/surpac-site.test.ts`. Saat ini 4 skip; jangan menyebutnya PASS.
+  Jangan pernah meng-commit data site, koordinatnya, screenshot atau trace yang memuatnya.
+- **M8 PENDING:** tidak ada angka Surpac atau persetujuan toleransi baru. Isi §4 hanya setelah engineer memberi
+  data; tetapkan toleransi §2 terlebih dahulu. Toleransi sintetis bukan toleransi proyek.
+- **Langkah berikutnya:** periksa CI head terbaru; pemilik memutuskan merge PR #3; engineer melengkapi M8 dan
+  benchmark laptop. Setelah merge yang disetujui, ulangi build `main`, hash aset, E2E, audit jaringan dan smoke test site.
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
@@ -107,7 +185,7 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 4. **Engineer (M7):** `npm run gen:bench && npm run bench` di laptop kerja target, atau ukur langsung di aplikasi (panel
    Surface menampilkan *Impor sampai frame pertama* dan *Pembaruan profil terakhir*).
 
-## Perintah yang dijalankan, hasil/exit code (lokal, container sesi ini)
+## Perintah historis, hasil/exit code (lokal, sesi Claude sebelumnya)
 
 | Perintah | Hasil |
 |---|---|
@@ -141,7 +219,7 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 ## Kinerja (indikatif — container sesi, BUKAN laptop target)
 
-Chromium 153 headless, WebGL SwiftShader (perangkat lunak), Intel Xeon 2,8 GHz 4 core, RAM 17 GB, Linux. Tiga
+Pengukuran historis sesi Claude sebelumnya: Chromium 153 headless, WebGL SwiftShader (perangkat lunak), Intel Xeon 2,8 GHz 4 core, RAM 17 GB, Linux. Tiga
 pengulangan. Impor: pemilihan berkas → frame pertama. Profil: pelepasan pegangan B → grafik.
 
 | Dataset | Byte | Segitiga | Impor median / maks | Profil median / maks |
@@ -170,11 +248,13 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 ## Status
 
-- **Status Surpac site:** varian teks `pa_tes` **terbaca dan konsisten** (struktur/topologi); pembandingan terhadap angka
-  Surpac (jumlah segitiga, batas, 3 kontrol, profil) **PENDING**
+- **Status Surpac site:** varian teks `pa_tes` terverifikasi struktur/topologi pada sesi Claude sebelumnya;
+  **tidak diuji ulang** pada sesi Codex (4 skip, berkas tidak tersedia). Pembandingan terhadap angka Surpac
+  (jumlah segitiga, batas, 3 kontrol, profil) **PENDING**
 - **Status QA laptop target:** PENDING
 - **Status Netlify:** produksi terverifikasi dengan data sintetis (e2e + audit jaringan); Deploy Preview belum diverifikasi
-- **URL aktual dan commit deploy:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`
+- **URL aktual dan kesetaraan aset:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`;
+  metadata SHA commit deploy internal Netlify tidak tersedia pada sesi Codex
 - **Klaim yang boleh dibuat saat ini:** preview fungsional DXF di URL di atas, plus pembacaan DTM/STR Surpac teks
   **pratinjau** (varian `pa_tes` terverifikasi struktural, belum dibandingkan dengan Surpac). Rilis penuh dukungan Surpac
   butuh pembandingan M3/M8 dengan kontrol site.

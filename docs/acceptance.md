@@ -21,9 +21,9 @@ selisih bertanda/absolut, dan hasil PASS/FAIL. Berkas site disimpan hanya di `pr
 
 | Besaran | Toleransi proyek | Dasar (presisi ekspor) | Disetujui oleh / tanggal |
 |---|---|---|---|
-| Elevasi profil (m) | | | |
-| Chainage titik patah (m) | | | |
-| Posisi titik kontrol E/N (m) | | | |
+| Elevasi profil (m) | PENDING | PENDING | PENDING |
+| Chainage titik patah (m) | PENDING | PENDING | PENDING |
+| Posisi titik kontrol E/N (m) | PENDING | PENDING | PENDING |
 
 Toleransi sintetis 0,01 m (IMPLEMENTATION_PLAN.md bagian 6) **tidak** menggantikan toleransi proyek.
 
@@ -42,23 +42,29 @@ Toleransi sintetis 0,01 m (IMPLEMENTATION_PLAN.md bagian 6) **tidak** menggantik
 
 ## 4. Pembandingan (M8)
 
+**PENDING (pemeriksaan sesi Codex, 2026-11-05):** belum ada angka acuan Surpac atau persetujuan toleransi proyek
+baru dari engineer pada sesi ini. Tidak ada pembandingan atau penetapan PASS/FAIL. Isi referensi dan hasil hanya
+setelah engineer memberikan angka Surpac dan menetapkan toleransi §2 **sebelum** selisih dihitung. Angka hasil
+aplikasi yang sudah tercantum berasal dari sesi sebelumnya (§5), bukan referensi Surpac atau validasi ulang sesi ini.
+Koordinat site tetap tidak boleh ditulis dalam dokumen yang di-commit.
+
 Masukkan A/B identik di Surpac dan aplikasi (panel **Terapkan E/N**). Bandingkan DXF dengan DTM/STR **serta**
 masing-masing dengan Surpac.
 
-| Kontrol | Referensi Surpac | Aplikasi (DXF) | Aplikasi (DTM/STR) | Selisih bertanda | |Selisih| | PASS/FAIL |
+| Kontrol | Referensi Surpac | Aplikasi (DXF) | Aplikasi (DTM/STR) | Selisih bertanda | Selisih absolut | PASS/FAIL |
 |---|---|---|---|---|---|---|
-| Jumlah segitiga | | — (DXF bukan TIN) | 137.512 | | | menunggu angka Surpac |
-| Batas E min/maks | | | | | | |
-| Batas N min/maks | | | | | | |
-| Batas Z min/maks | | | | | | |
-| Kontrol 1 Z | | | | | | |
-| Kontrol 2 Z | | | | | | |
-| Kontrol 3 Z | | | | | | |
-| Profil: crest | | | | | | |
-| Profil: toe | | | | | | |
-| Profil: ujung segmen dalam mesh | | | | | | |
-| Bor: MD potong / Z potong / offset | | | | | | |
-| Jumlah objek (filter mati) | | | | | | |
+| Jumlah segitiga | PENDING | — (DXF bukan TIN) | 137.512 | | | PENDING |
+| Batas E min/maks | PENDING | | | | | PENDING |
+| Batas N min/maks | PENDING | | | | | PENDING |
+| Batas Z min/maks | PENDING | | | | | PENDING |
+| Kontrol 1 Z | PENDING | | | | | PENDING |
+| Kontrol 2 Z | PENDING | | | | | PENDING |
+| Kontrol 3 Z | PENDING | | | | | PENDING |
+| Profil: crest | PENDING | | | | | PENDING |
+| Profil: toe | PENDING | | | | | PENDING |
+| Profil: ujung segmen dalam mesh | PENDING | | | | | PENDING |
+| Bor: MD potong / Z potong / offset | PENDING | | | | | PENDING |
+| Jumlah objek (filter mati) | PENDING | | | | | PENDING |
 
 ## 5. Hasil aplikasi pada sampel site `pa_tes` (2026-11-05, container sesi agen)
 
