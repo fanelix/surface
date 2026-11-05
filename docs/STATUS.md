@@ -51,7 +51,8 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 ## Perubahan yang diusulkan namun belum diterapkan
 
-- Adapter DTM/STR → mesh (M3) setelah sampel Surpac terverifikasi tersedia.
+- Pembandingan DTM/STR dan DXF-TIN terhadap Surpac (M8) setelah engineer memberi kontrol, profil acuan, dan
+  DXF muka segitiga dari surface yang sama.
 
 ## Diterapkan atas permintaan pemilik
 
@@ -69,7 +70,7 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 | M0 | Selesai | `npm ci && npm run check` dari clean clone lokal exit 0, `dist/index.html` ada; CI hijau sejak `b70474d` |
 | M1 | Selesai | `tests/unit/geometry.test.ts` 34 tes |
 | M2 | Selesai | `tests/unit/dxf.test.ts` 29 tes |
-| M3 | **Parsial — SURPAC_SITE_PENDING** | `tests/unit/surpac.test.ts` 13 tes deteksi/pemasangan/error + 4 `it.todo` untuk jalur impor |
+| M3 | **Adapter terverifikasi struktural; pembandingan Surpac PENDING** | Varian teks `pa_tes` dibaca: 137.512 segitiga, 0 ditolak, TIN konsisten (`docs/acceptance.md` §3, §5). `tests/unit/surpac.test.ts` 22 tes (fixture sintetis identik dengan `bench_3dface.dxf`) + `tests/unit/surpac-site.test.ts` 4 tes lokal; 1 `it.todo` untuk pembandingan Surpac (M8) |
 | M4 | Selesai | `tests/unit/profile.test.ts` 21 + `tests/unit/worker.test.ts` 13 tes |
 | M5 | Selesai (preview DXF) | `tests/e2e/section.spec.ts` 11 tes, termasuk render WebGL terpisah dan Batal di tengah gambar |
 | M6 | Selesai | `tests/unit/objects.test.ts` 19 + `tests/e2e/objects.spec.ts` 6 tes |
@@ -81,8 +82,9 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 1. **Pemilik repo (M7):** periksa badge/HUD Netlify yang menutupi tabel; pastikan Deploy Preview aktif untuk PR. PR
    berikutnya akan memverifikasi Deploy Preview.
 2. **Selesai:** e2e dan audit jaringan terhadap produksi (lihat *Verifikasi produksi Netlify*).
-3. **Engineer (M3/M8):** lengkapi `docs/acceptance.md` (sampel DTM/STR + DXF surface yang sama, grid/datum, 3 kontrol,
-   satu profil A–B, satu bor), tetapkan toleransi lapangan sebelum membandingkan.
+3. **Engineer (M3/M8):** sampel DTM/STR `pa_tes` sudah diterima dan terbaca. Lengkapi `docs/acceptance.md`: angka Surpac
+   (jumlah segitiga, batas E/N/Z), DXF muka segitiga dari surface yang sama, grid/datum, 3 kontrol, satu profil A–B, satu
+   bor; tetapkan toleransi lapangan sebelum membandingkan.
 4. **Engineer (M7):** `npm run gen:bench && npm run bench` di laptop kerja target, atau ukur langsung di aplikasi (panel
    Surface menampilkan *Impor sampai frame pertama* dan *Pembaruan profil terakhir*).
 
@@ -149,17 +151,19 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 ## Status
 
-- **Status Surpac site:** PENDING (`SURPAC_SITE_PENDING`)
+- **Status Surpac site:** varian teks `pa_tes` **terbaca dan konsisten** (struktur/topologi); pembandingan terhadap angka
+  Surpac (jumlah segitiga, batas, 3 kontrol, profil) **PENDING**
 - **Status QA laptop target:** PENDING
 - **Status Netlify:** produksi terverifikasi dengan data sintetis (e2e + audit jaringan); Deploy Preview belum diverifikasi
 - **URL aktual dan commit deploy:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`
-- **Klaim yang boleh dibuat saat ini:** preview fungsional DXF di URL di atas. Dukungan DTM/STR Surpac belum boleh
-  diklaim; rilis penuh butuh M3 dan M8.
+- **Klaim yang boleh dibuat saat ini:** preview fungsional DXF di URL di atas, plus pembacaan DTM/STR Surpac teks
+  **pratinjau** (varian `pa_tes` terverifikasi struktural, belum dibandingkan dengan Surpac). Rilis penuh dukungan Surpac
+  butuh pembandingan M3/M8 dengan kontrol site.
 
 ## Hambatan, pemilik tindakan, bagian lain yang dapat dilanjutkan
 
 | Hambatan | Pemilik | Dapat dilanjutkan sementara |
 |---|---|---|
-| Sampel DTM/STR + DXF surface yang sama + kontrol site | Engineer geoteknik/survey | Semua alur DXF, titik/bor, penampang |
+| Angka Surpac untuk `pa_tes` (jumlah segitiga, batas), ≥ 3 kontrol, profil A–B, grid/datum, toleransi, DXF muka segitiga | Engineer geoteknik/survey | Impor DTM/STR `pa_tes` sudah berjalan di aplikasi |
 | Badge/HUD Netlify menutupi tabel; verifikasi Deploy Preview | Pemilik repo | Produksi lulus e2e dan audit jaringan |
 | Benchmark laptop kerja | Engineer | Angka container di atas sebagai indikasi |

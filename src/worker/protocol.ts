@@ -14,7 +14,7 @@ export type CandidateInfo = {
 
 export type SurfaceSummary = {
   fileName: string
-  format: 'dxf'
+  format: 'dxf' | 'surpac'
   bytes: number
   layer: string
   triangleCount: number

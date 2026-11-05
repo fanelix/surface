@@ -11,7 +11,7 @@ import { DegenerateSectionError } from '../geometry/section'
 import type { CandidateInfo, FromWorker, RenderBuffers, SurfaceSummary, ToWorker } from './protocol'
 
 type Active = { version: number; mesh: Mesh; index: MeshIndex; summary: SurfaceSummary }
-type Pending = { requestId: number; parsed: DxfParseOk; bytes: number; startedAt: number }
+type Pending = { requestId: number; parsed: DxfParseOk; format: 'dxf' | 'surpac'; bytes: number; startedAt: number }
 
 /**
  * Pemilik mesh Float64 dan indeks spasial. Logika murni tanpa ketergantungan Worker
@@ -72,7 +72,7 @@ export class GeometryEngine {
         this.post({ type: 'error', requestId, issues: res.issues, ...(res.needsPairConfirmation ? { needsPairConfirmation: res.needsPairConfirmation } : {}) })
         return
       }
-      this.pending = { requestId, parsed: res.dxf, bytes: res.bytes, startedAt }
+      this.pending = { requestId, parsed: res.dxf, format: res.format, bytes: res.bytes, startedAt }
       const c = res.dxf.candidates
       const partial = c.some((x) => x.rejectedFaces > 0)
       if (c.length === 1 && !partial) {
@@ -129,7 +129,7 @@ export class GeometryEngine {
     this.version++
     const summary: SurfaceSummary = {
       fileName: p.parsed.fileName,
-      format: 'dxf',
+      format: p.format,
       bytes: p.bytes,
       layer: cand.layer,
       triangleCount: cand.mesh.triangles.length / 3,
