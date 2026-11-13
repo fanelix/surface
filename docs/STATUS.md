@@ -8,7 +8,7 @@ checkout lokal; akses GitHub dengan izin `pull`/`push`; membaca PR, status CI, j
 typecheck, lint, Vitest, build dan Playwright. Runtime verifikasi utama Node 22.23.4, npm 10.9.9,
 Playwright 1.63.0 / Chromium headless shell 153.0.8010.12. Tidak ada akses dashboard Netlify.
 
-**Branch produksi:** `main` di `50e7461b0176ebf2f617d8004ec9dc482541dd67` (diperiksa ulang dari remote).
+**Branch produksi:** `main` di `1b810bb` (merge PR #3, 2026-11-13); sebelumnya `50e7461`.
 **Branch kerja:** `claude/amazing-feynman-aaof72`; head awal sesi `cfa0e54c30590cd6dbe8ff37abf7d11579919fe4`.
 Commit kode adapter terakhir `1d100f1`; perubahan sesi ini hanya dokumentasi. PR #3 tetap terbuka; **belum di-merge**.
 
@@ -39,12 +39,33 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 ## Sesi Claude 2026-11-13
 
+### Merge PR #3 dan verifikasi produksi (2026-11-13)
+
+- [fanelix/surface#3](https://github.com/fanelix/surface/pull/3) **di-merge** ke `main` sebagai `1b810bb` atas
+  permintaan pemilik, setelah CI hijau di head `308028e` (check + e2e, run push 43363231555 dan PR 43363241352;
+  check Netlify *Header rules* sukses, lainnya netral); merge commit dikunci ke head itu.
+- **Produksi** <https://slopeview.netlify.app/> menyajikan build baru ~10 s setelah merge. Aset `index-BnZjTC8f.js`,
+  `index-DU_fLwUX.css`, `geometry.worker-w5oahgS5.js` **identik byte-per-byte** dengan `npm run build` lokal dari
+  `main` `1b810bb`.
+- **E2E terhadap produksi** (`E2E_BASE_URL=https://slopeview.netlify.app npx playwright test --retries=0`):
+  **20 lulus, 1 skip** (bench), termasuk dua tes M3 (pasangan DTM/STR, STR hilang) dan render WebGL.
+- **Smoke test produksi dengan berkas site asli** (dipilih lokal di browser, tidak diunggah): DTM+STR impor
+  677–751 ms (3×), A–B digambar ulang → 1 bagian profil, 0 rentang ambigu, pembaruan 68 ms; `pa_tes_3d.dxf`
+  diterima (827 ms, unit inci → konfirmasi meter); DXF sintetis ~50 MB diterima (1,94 s, +259 MB RSS). **0 request
+  ke origin lain**, 0 error halaman.
+- CI push ke `main` untuk `1b810bb`: [run 43369676174](https://github.com/fanelix/surface/actions/runs/43369676174)
+  sedang berjalan saat catatan ini dibuat; periksa hasilnya di tab Actions.
+
 ### Keputusan pemilik repo (2026-11-13)
 
 - **Dikecualikan dari penerimaan:** jumlah segitiga, batas E/N/Z, ≥ 3 titik kontrol, grid/datum.
 - **Batas ukuran surface dinaikkan dari 25.000.000 menjadi 50.000.000 byte per berkas** (menggantikan angka di
   IMPLEMENTATION_PLAN.md bagian 2 dan M2), karena ekspor DXF 3D site `pa_tes_3d.dxf` berukuran 26.044.478 byte.
-- **Laptop kerja target:** RAM 16 GB, GPU NVIDIA GTX 1050 Ti.
+- **Laptop kerja target:** RAM 16 GB, GPU NVIDIA GTX 1050 Ti. **Pengukuran di laptop tidak dilakukan** (keputusan
+  pemilik, 2026-11-13); angka kinerja container menjadi acuan indikatif.
+- **Surface acuan penampang = DTM/STR Surpac** (`pa_tes.dtm` + `pa_tes.str`), bukan DXF 3D (keputusan pemilik,
+  2026-11-13). DXF 3D tetap dibaca aplikasi, tetapi triangulasinya lebih kasar (±48% titik) sehingga profilnya bisa
+  berbeda hingga beberapa meter dari DTM (`docs/acceptance.md` §4a).
 
 ### Diterapkan
 
@@ -67,11 +88,9 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 ### Belum / PENDING
 
-- M8: profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D),
-  versi Surpac/opsi ekspor.
-- Pengukuran di laptop target (16 GB, GTX 1050 Ti).
-- Merge PR #3 menunggu persetujuan pemilik; setelah merge, produksi perlu diverifikasi ulang (adapter Surpac dan
-  batas 50 MB baru ada di produksi setelah merge).
+- M8: profil A–B acuan Surpac (dari DTM), titik/bor acuan, toleransi lapangan, versi Surpac/opsi ekspor.
+- Selesai sejak catatan awal: surface acuan diputuskan (DTM/STR); pengukuran laptop dikecualikan; PR #3 di-merge dan
+  produksi diverifikasi (lihat di atas).
 
 ## Verifikasi sesi Codex (2026-11-05)
 
@@ -306,19 +325,19 @@ GTX 1050 Ti): pengukuran **PENDING**.
 - **Status Surpac site:** varian teks `pa_tes` terverifikasi struktur/topologi **dan dikonfirmasi oleh ekspor 3DFACE
   Surpac independen** (2026-11-13, 5/5 tes site lokal lulus). Jumlah segitiga, batas, 3 kontrol, grid dikecualikan
   pemilik; profil A–B acuan, titik/bor acuan dan toleransi **PENDING**
-- **Status QA laptop target:** spesifikasi diterima (16 GB RAM, GTX 1050 Ti); pengukuran PENDING
-- **Status Netlify:** produksi terverifikasi dengan data sintetis (e2e + audit jaringan); Deploy Preview belum diverifikasi
+- **Status QA laptop target:** **dikecualikan** pemilik (2026-11-13); spesifikasi tercatat (16 GB RAM, GTX 1050 Ti),
+  kinerja hanya diukur di container (DXF ~50 MB impor median 1,40 s, profil 53 ms)
+- **Status Netlify:** produksi `1b810bb` terverifikasi (aset identik, e2e 20/20, smoke test site asli, 0 request keluar); Deploy Preview masih HTTP 401 dari container
 - **URL aktual dan kesetaraan aset:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`;
   metadata SHA commit deploy internal Netlify tidak tersedia pada sesi Codex
-- **Klaim yang boleh dibuat saat ini:** preview fungsional DXF di URL di atas, plus pembacaan DTM/STR Surpac teks
-  **pratinjau** (varian `pa_tes` terverifikasi struktural, belum dibandingkan dengan Surpac). Rilis penuh dukungan Surpac
-  butuh pembandingan M3/M8 dengan kontrol site.
+- **Klaim yang boleh dibuat saat ini:** aplikasi produksi di URL di atas membaca DXF 3DFACE/POLYFACE dan pasangan
+  Surpac DTM/STR teks (varian `pa_tes`, dikonfirmasi ekspor 3DFACE Surpac ≤ 1 mm di vertex), hingga 50.000.000 byte per
+  berkas. Surface acuan penampang: DTM/STR. Belum boleh diklaim: kesesuaian profil terhadap profil acuan Surpac dan
+  toleransi lapangan (M8). Kinerja di laptop target tidak diukur (dikecualikan pemilik); angka container bersifat indikatif.
 
 ## Hambatan, pemilik tindakan, bagian lain yang dapat dilanjutkan
 
 | Hambatan | Pemilik | Dapat dilanjutkan sementara |
 |---|---|---|
-| Profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D) | Engineer geoteknik/survey | Impor DTM/STR dan DXF 3D `pa_tes` sudah berjalan dan saling cocok ≤ 1 mm di vertex |
+| Profil A–B acuan Surpac dari DTM, titik/bor acuan, toleransi lapangan | Engineer geoteknik/survey | Impor DTM/STR (acuan) dan DXF 3D `pa_tes` sudah berjalan di produksi dan saling cocok ≤ 1 mm di vertex |
 | Badge/HUD Netlify menutupi tabel; verifikasi Deploy Preview | Pemilik repo | Produksi lulus e2e dan audit jaringan |
-| Benchmark laptop kerja (16 GB RAM, GTX 1050 Ti) | Engineer | Angka container di atas, termasuk ~50 MB, sebagai indikasi |
-| Merge PR #3 (adapter Surpac + batas 50 MB) | Pemilik repo | Produksi masih versi `main` `50e7461` (batas 25.000.000) |
