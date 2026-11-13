@@ -69,7 +69,7 @@ export function ImportPanel(p: Props) {
           if (files.length) p.onFiles(files)
         }}
       />
-      <p className="muted">DXF ASCII (3DFACE/POLYFACE segitiga) atau pasangan .dtm + .str, maks. 25.000.000 byte per berkas.</p>
+      <p className="muted">DXF ASCII (3DFACE/POLYFACE segitiga) atau pasangan .dtm + .str, maks. 50.000.000 byte per berkas.</p>
 
       {s.kind === 'loading' && (
         <div className="status" data-testid="import-progress">

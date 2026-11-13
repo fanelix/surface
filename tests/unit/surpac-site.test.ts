@@ -129,3 +129,48 @@ describe.skipIf(!HAVE)('sampel site Surpac (lokal, private/site)', () => {
     if (!r.ok) expect(r.issues[0]!.code).toBe('DXF_CONTOURS_ONLY')
   })
 })
+
+const DXF3D = join(DIR, 'pa_tes_3d.dxf')
+
+describe.skipIf(!HAVE || !existsSync(DXF3D))('sampel site: DXF 3D (3DFACE dari Surpac) vs DTM/STR — pembanding independen', () => {
+  it('vertex DXF yang berasal dari titik STR berimpit dengan vertex mesh DTM/STR (≤ 1 mm E/N dan Z)', async () => {
+    const dx = parseDxf(readFileSync(DXF3D, 'latin1'), 'pa_tes_3d.dxf')
+    if (!dx.ok) throw new Error(dx.issues[0]!.code)
+    expect(dx.candidates.length).toBe(1)
+    expect(dx.candidates[0]!.rejectedFaces).toBe(0)
+    const p = pairSurpacFiles([load(DTM, 'pa_tes.dtm'), load(STR, 'pa_tes.str')])
+    if (!p.ok) throw new Error()
+    const sp = await parseSurpacPair(p.pair, { yieldFn: async () => {} })
+    if (!sp.ok) throw new Error()
+    const A = sp.candidates[0]!.mesh, B = dx.candidates[0]!.mesh
+    // vertex DTM per sel 1 mm (dengan tetangga sel) untuk mencari padanan dalam 1 mm
+    const cell = new Map<string, number[]>()
+    const k = (e: number, n: number) => `${Math.floor(e * 1000)},${Math.floor(n * 1000)}`
+    for (let i = 0; i < A.xyz.length; i += 3) {
+      const key = k(A.xyz[i]!, A.xyz[i + 1]!)
+      const arr = cell.get(key)
+      if (arr) arr.push(i)
+      else cell.set(key, [i])
+    }
+    let shared = 0, maxDxy = 0, maxDz = 0
+    for (let i = 0; i < B.xyz.length; i += 3) {
+      const e = B.xyz[i]!, n = B.xyz[i + 1]!, z = B.xyz[i + 2]!
+      let best: number | null = null, bestD = Infinity
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        for (const j of cell.get(`${Math.floor(e * 1000) + dx},${Math.floor(n * 1000) + dy}`) ?? []) {
+          const d = Math.hypot(A.xyz[j]! - e, A.xyz[j + 1]! - n)
+          if (d < bestD) { bestD = d; best = j }
+        }
+      }
+      if (best === null || bestD > 0.001) continue
+      shared++
+      maxDxy = Math.max(maxDxy, bestD)
+      maxDz = Math.max(maxDz, Math.abs(A.xyz[best + 2]! - z))
+    }
+    const nB = B.xyz.length / 3
+    console.info(`[site 3D] vertex DXF=${nB} berimpit dengan vertex DTM=${shared} (${((shared / nB) * 100).toFixed(1)}%) maks dE/N=${(maxDxy * 1000).toFixed(2)} mm maks dZ=${(maxDz * 1000).toFixed(2)} mm`)
+    expect(shared / nB).toBeGreaterThan(0.99)
+    expect(maxDxy).toBeLessThanOrEqual(0.001)
+    expect(maxDz).toBeLessThanOrEqual(0.001)
+  }, 120000)
+})

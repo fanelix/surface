@@ -247,9 +247,9 @@ describe('impor DTM/STR varian teks terverifikasi', () => {
 })
 
 describe('batas ukuran per anggota pasangan dan pintu impor', () => {
-  it('dua berkas masing-masing tepat 25.000.000 byte dibaca dan diurai', async () => {
-    const d = fakeFile('topo.dtm', 25_000_000, DTM)
-    const s = fakeFile('topo.str', 25_000_000, STR)
+  it('dua berkas masing-masing tepat 50.000.000 byte dibaca dan diurai', async () => {
+    const d = fakeFile('topo.dtm', 50_000_000, DTM)
+    const s = fakeFile('topo.str', 50_000_000, STR)
     const r = await openSurfaceFiles([d, s], { yieldFn: async () => {} })
     expect(d.reads).toBe(1)
     expect(s.reads).toBe(1)
@@ -257,9 +257,9 @@ describe('batas ukuran per anggota pasangan dan pintu impor', () => {
     if (r.ok) expect(r.format).toBe('surpac')
   })
 
-  it('satu anggota 25.000.001 byte → keduanya tidak dibaca', async () => {
-    const d = fakeFile('topo.dtm', 25_000_000, DTM)
-    const s = fakeFile('topo.str', 25_000_001, STR)
+  it('satu anggota 50.000.001 byte → keduanya tidak dibaca', async () => {
+    const d = fakeFile('topo.dtm', 50_000_000, DTM)
+    const s = fakeFile('topo.str', 50_000_001, STR)
     const r = await openSurfaceFiles([d, s])
     expect(r.ok).toBe(false)
     if (!r.ok) expect(r.issues[0]!.code).toBe('SURFACE_TOO_LARGE')

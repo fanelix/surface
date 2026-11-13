@@ -1,5 +1,8 @@
 # Status implementasi
 
+**Pelaksana / mode (sesi terbaru 2026-11-13):** Claude Code, agen repo di sesi cloud (baca/tulis repo, jalankan tes,
+akses GitHub via MCP; host `slopeview.netlify.app` diizinkan). Lihat *Sesi Claude 2026-11-13* di bawah.
+
 **Pelaksana / mode (sesi lanjutan 2026-11-05):** OpenAI Codex, agen repo. Kemampuan terverifikasi: baca/tulis
 checkout lokal; akses GitHub dengan izin `pull`/`push`; membaca PR, status CI, job dan log Actions; menjalankan
 typecheck, lint, Vitest, build dan Playwright. Runtime verifikasi utama Node 22.23.4, npm 10.9.9,
@@ -33,6 +36,42 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 (pembaruan STATUS) di-merge sebagai `50e7461`.
 
 **URL produksi:** <https://slopeview.netlify.app/> — lihat bagian *Verifikasi produksi Netlify* di bawah.
+
+## Sesi Claude 2026-11-13
+
+### Keputusan pemilik repo (2026-11-13)
+
+- **Dikecualikan dari penerimaan:** jumlah segitiga, batas E/N/Z, ≥ 3 titik kontrol, grid/datum.
+- **Batas ukuran surface dinaikkan dari 25.000.000 menjadi 50.000.000 byte per berkas** (menggantikan angka di
+  IMPLEMENTATION_PLAN.md bagian 2 dan M2), karena ekspor DXF 3D site `pa_tes_3d.dxf` berukuran 26.044.478 byte.
+- **Laptop kerja target:** RAM 16 GB, GPU NVIDIA GTX 1050 Ti.
+
+### Diterapkan
+
+- `MAX_SURFACE_BYTES = 50_000_000` (`src/import/surface.ts`), teks panel impor, tes batas (49.999.999 / 50.000.000
+  diterima, 50.000.001 ditolak tanpa dibaca; 26.044.478 diterima; pasangan DTM/STR per anggota), dataset tolok ukur
+  `large_50mb.dxf` di `npm run gen:bench` dan `tests/e2e/bench.spec.ts`.
+- `tests/unit/surpac-site.test.ts` (lokal): blok baru DXF 3D vs DTM/STR (vertex berimpit ≤ 1 mm).
+- `docs/acceptance.md`: §1 data diterima/dikecualikan, §4 baris dikecualikan, §4a pembandingan DXF 3D vs DTM/STR,
+  §5 hasil impor 2026-11-13.
+
+### Teruji (lokal, container sesi ini)
+
+- **DXF 3D site** `pa_tes_3d.dxf` (privat, tidak di-commit): 64.858 segitiga, 0 ditolak; **32.904/32.906 vertex
+  berimpit dengan vertex mesh DTM/STR (maks 0,90 mm E/N, 0,51 mm Z)** → pembaca DTM/STR terkonfirmasi oleh ekspor
+  3DFACE Surpac yang independen. Selisih profil antar kedua surface (p95 1,06 m) berasal dari triangulasi DXF yang
+  lebih kasar, bukan pembaca (detail `docs/acceptance.md` §4a).
+- **Browser (build lokal):** `pa_tes_3d.dxf` kini diterima, impor 607 ms; DTM+STR 635 ms; DXF sintetis ~50 MB
+  1.447 ms; puncak tambahan RSS Chromium +56 / +39 / +260 MB; 0 request eksternal, 0 error halaman.
+- **Tolok ukur** (`BENCH=1`, 3×, Xeon 2,1 GHz 4 core, bukan laptop target): lihat tabel *Kinerja*.
+
+### Belum / PENDING
+
+- M8: profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D),
+  versi Surpac/opsi ekspor.
+- Pengukuran di laptop target (16 GB, GTX 1050 Ti).
+- Merge PR #3 menunggu persetujuan pemilik; setelah merge, produksi perlu diverifikasi ulang (adapter Surpac dan
+  batas 50 MB baru ada di produksi setelah merge).
 
 ## Verifikasi sesi Codex (2026-11-05)
 
@@ -126,6 +165,11 @@ ekspektasi tes produksi. Pada lingkungan tanpa proxy, mulai kembali dengan perin
 
 ## Serah terima ke pelaksana berikutnya (diperbarui Codex, 2026-11-05)
 
+> **Pembaruan 2026-11-13 (Claude):** pada sesi ini `private/site/` berisi `pa_tes.dtm`, `pa_tes.str`, `pa_tes.dxf`,
+> `pa_tes.ssi` dan `pa_tes_3d.dxf`; `tests/unit/surpac-site.test.ts` **5/5 lulus**. Container lain tidak memiliki
+> berkas ini — minta pemilik melampirkan ulang. Batas ukuran sekarang 50.000.000 byte (keputusan pemilik). Butir di
+> bawah adalah catatan 2026-11-05; untuk keadaan terbaru lihat *Sesi Claude 2026-11-13*.
+
 - **Branch kerja:** `claude/amazing-feynman-aaof72`; head awal sesi `cfa0e54`, kode adapter `1d100f1`.
   Baca SHA head dokumentasi terbaru dari remote; jangan menganggap SHA awal sesi sebagai head berikutnya.
 - **PR terbuka:** [fanelix/surface#3](https://github.com/fanelix/surface/pull/3). CI untuk head awal `cfa0e54`
@@ -214,8 +258,9 @@ ekspektasi tes produksi. Pada lingkungan tanpa proxy, mulai kembali dengan perin
 - **Kombinasi:** filter mati 9 objek; koridor ±5 m 6 objek (P-02, P-03, P-04, BH-01, BH-02, BH-04). Balik A/B: P-01
   s=70 o=+10, P-03 s=−10 o=+2, BH-01 offset collar −12 / toe +8, MD dan Z potong tetap.
 - **CSV:** `points_invalid.csv` baris 2 diterima; 3 (Northing kosong), 4 (duplikat), 5 (NaN) ditolak.
-- **Batas byte:** 24.999.999 dan 25.000.000 dibaca; 25.000.001 ditolak tanpa pembacaan (spy). Pasangan DTM/STR: dua
-  berkas tepat 25 MB dibaca; satu anggota 25.000.001 → tidak ada yang dibaca.
+- **Batas byte (sejak 2026-11-13: 50.000.000):** 26.044.478, 49.999.999 dan 50.000.000 dibaca; 50.000.001 ditolak
+  tanpa pembacaan (spy). Pasangan DTM/STR: dua berkas tepat 50.000.000 byte dibaca; satu anggota 50.000.001 → tidak ada
+  yang dibaca. (Sebelumnya 25.000.000 dengan uji 24.999.999/25.000.000/25.000.001.)
 
 ## Kinerja (indikatif — container sesi, BUKAN laptop target)
 
@@ -228,8 +273,18 @@ pengulangan. Impor: pemilihan berkas → frame pertama. Profil: pelepasan pegang
 | medium_5mb.dxf | 4.931.696 | 24.642 | 536 ms / 558 ms | 7,0 ms / 7,5 ms |
 | large_25mb.dxf | 24.733.962 | 123.008 | 1.508 ms / 1.617 ms | 39 ms / 234 ms |
 
-Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini. Memori puncak belum terukur
-(`performance.memory` hanya heap thread utama, 11 MB; heap worker tidak termasuk). Status laptop target: PENDING.
+Pengukuran 2026-11-13 (sesi Claude; Chromium 153 headless, SwiftShader, Intel Xeon 2,1 GHz 4 core, RAM 17 GB):
+
+| Dataset | Byte | Segitiga | Impor median / maks | Profil median / maks |
+|---|---:|---:|---|---|
+| small_500kb.dxf | 489.882 | 2.450 | 82 ms / 99 ms | 12 ms / 14 ms |
+| medium_5mb.dxf | 4.931.696 | 24.642 | 255 ms / 321 ms | 6 ms / 16 ms |
+| large_25mb.dxf | 24.733.962 | 123.008 | 687 ms / 752 ms | 13 ms / 13 ms |
+| **large_50mb.dxf** | 49.638.319 | 246.402 | **1.398 ms / 1.587 ms** | 53 ms / 147 ms |
+
+Puncak tambahan memori total proses Chromium (RSS, sampel 50 ms) saat impor `large_50mb.dxf`: **+260 MB**.
+Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini. Laptop target (RAM 16 GB,
+GTX 1050 Ti): pengukuran **PENDING**.
 
 ## Keputusan implementasi dan pemetaan nama
 
@@ -248,10 +303,10 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 ## Status
 
-- **Status Surpac site:** varian teks `pa_tes` terverifikasi struktur/topologi pada sesi Claude sebelumnya;
-  **tidak diuji ulang** pada sesi Codex (4 skip, berkas tidak tersedia). Pembandingan terhadap angka Surpac
-  (jumlah segitiga, batas, 3 kontrol, profil) **PENDING**
-- **Status QA laptop target:** PENDING
+- **Status Surpac site:** varian teks `pa_tes` terverifikasi struktur/topologi **dan dikonfirmasi oleh ekspor 3DFACE
+  Surpac independen** (2026-11-13, 5/5 tes site lokal lulus). Jumlah segitiga, batas, 3 kontrol, grid dikecualikan
+  pemilik; profil A–B acuan, titik/bor acuan dan toleransi **PENDING**
+- **Status QA laptop target:** spesifikasi diterima (16 GB RAM, GTX 1050 Ti); pengukuran PENDING
 - **Status Netlify:** produksi terverifikasi dengan data sintetis (e2e + audit jaringan); Deploy Preview belum diverifikasi
 - **URL aktual dan kesetaraan aset:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`;
   metadata SHA commit deploy internal Netlify tidak tersedia pada sesi Codex
@@ -263,6 +318,7 @@ Target awal (median ≤ 15 s impor, ≤ 1 s profil) terpenuhi di lingkungan ini.
 
 | Hambatan | Pemilik | Dapat dilanjutkan sementara |
 |---|---|---|
-| Angka Surpac untuk `pa_tes` (jumlah segitiga, batas), ≥ 3 kontrol, profil A–B, grid/datum, toleransi, DXF muka segitiga | Engineer geoteknik/survey | Impor DTM/STR `pa_tes` sudah berjalan di aplikasi |
+| Profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D) | Engineer geoteknik/survey | Impor DTM/STR dan DXF 3D `pa_tes` sudah berjalan dan saling cocok ≤ 1 mm di vertex |
 | Badge/HUD Netlify menutupi tabel; verifikasi Deploy Preview | Pemilik repo | Produksi lulus e2e dan audit jaringan |
-| Benchmark laptop kerja | Engineer | Angka container di atas sebagai indikasi |
+| Benchmark laptop kerja (16 GB RAM, GTX 1050 Ti) | Engineer | Angka container di atas, termasuk ~50 MB, sebagai indikasi |
+| Merge PR #3 (adapter Surpac + batas 50 MB) | Pemilik repo | Produksi masih versi `main` `50e7461` (batas 25.000.000) |

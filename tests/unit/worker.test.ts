@@ -51,7 +51,7 @@ describe('GeometryEngine', () => {
   it('impor terlalu besar ditolak tanpa membaca; surface aktif tetap', async () => {
     const { eng, last } = engineHarness()
     await eng.handle({ type: 'loadSurface', requestId: 1, files: [fixtureFile('gap_3dface.dxf')] })
-    const big = fakeFile('besar.dxf', 25_000_001)
+    const big = fakeFile('besar.dxf', 50_000_001)
     await eng.handle({ type: 'loadSurface', requestId: 2, files: [big] })
     expect(big.reads).toBe(0)
     expect(last('error')!.issues[0]!.code).toBe('SURFACE_TOO_LARGE')
