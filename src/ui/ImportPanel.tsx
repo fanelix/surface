@@ -69,7 +69,7 @@ export function ImportPanel(p: Props) {
           if (files.length) p.onFiles(files)
         }}
       />
-      <p className="muted">DXF ASCII (3DFACE/POLYFACE segitiga) atau pasangan .dtm + .str, maks. 25.000.000 byte per berkas.</p>
+      <p className="muted">DXF ASCII (3DFACE/POLYFACE segitiga) atau pasangan .dtm + .str, maks. 50.000.000 byte per berkas.</p>
 
       {s.kind === 'loading' && (
         <div className="status" data-testid="import-progress">
@@ -145,7 +145,7 @@ export function ImportPanel(p: Props) {
               {sum.units.kind === 'other' ? (
                 <p>Unit DXF bukan meter. Aplikasi menghitung dalam meter; nilai tidak dikonversi. Gunakan data meter atau konfirmasi bahwa angka sudah dalam meter.</p>
               ) : (
-                <p>DXF tidak menyatakan unit. Konfirmasi bahwa E, N, dan Z dalam meter pada datum yang sama.</p>
+                <p>{sum.format === 'surpac' ? 'DTM/STR Surpac' : 'DXF'} tidak menyatakan unit. Konfirmasi bahwa E, N, dan Z dalam meter pada datum yang sama.</p>
               )}
               <button type="button" data-testid="confirm-meters" onClick={() => p.onConfirmUnits(true)}>Ya, koordinat dalam meter</button>
             </div>

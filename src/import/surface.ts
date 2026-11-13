@@ -1,7 +1,11 @@
 import type { ValidationIssue } from '../domain/types'
 
-/** Batas per berkas surface (byte). Dua berkas pasangan DTM/STR masing-masing boleh tepat 25 MB. */
-export const MAX_SURFACE_BYTES = 25_000_000
+/**
+ * Batas per berkas surface (byte). Dua berkas pasangan DTM/STR masing-masing boleh tepat sebesar ini.
+ * Keputusan pemilik 2026-11-13: 50.000.000 byte (rencana awal 25.000.000), karena ekspor DXF 3D
+ * site nyata berukuran 26.044.478 byte.
+ */
+export const MAX_SURFACE_BYTES = 50_000_000
 
 export type FileLike = {
   name: string

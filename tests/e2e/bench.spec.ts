@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import os from 'node:os'
 
 const LARGE = join(process.cwd(), 'tests', 'fixtures', 'large')
-const DATASETS = ['small_500kb.dxf', 'medium_5mb.dxf', 'large_25mb.dxf']
+const DATASETS = ['small_500kb.dxf', 'medium_5mb.dxf', 'large_25mb.dxf', 'large_50mb.dxf']
 const REPS = 3
 
 test.skip(!process.env.BENCH, 'Set BENCH=1 untuk menjalankan tolok ukur.')

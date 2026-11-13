@@ -215,3 +215,26 @@ test('Batal di tengah gambar klik-klik menghapus A sementara tanpa mengubah gari
   await expect(page.getByTestId('mode-navigate')).toHaveAttribute('aria-pressed', 'true')
   await expect(page.locator('[data-testid=ab-line] line')).not.toHaveAttribute('stroke-dasharray', /.+/)
 })
+
+test('M3 · pasangan DTM + STR (dipilih sekaligus) menghasilkan profil bench yang sama dengan DXF', async ({ page }) => {
+  await openApp(page)
+  await page.getByTestId('surface-input').setInputFiles([fx('surpac/bench.str'), fx('surpac/bench.dtm')])
+  await expect(page.getByTestId('summary-triangles')).toHaveText('10')
+  await expect(page.getByTestId('summary-layer')).toHaveText('OBJECT 1 / TRISOLATION 1')
+  await expect(page.getByTestId('surface-summary')).toContainText('bench.dtm + bench.str')
+  await expect(page.getByTestId('summary-units')).toContainText('tanpa unit')
+  await expect(page.getByTestId('unit-confirm')).toContainText('DTM/STR Surpac tidak menyatakan unit')
+  await page.getByTestId('confirm-meters').click()
+  await setAB(page, [E0, N0], [E0 + 100, N0])
+  await expect(page.locator('[data-testid=profile-part]')).toHaveCount(1)
+  const parts = await profileParts(page)
+  for (const [s, z] of expected.bench.required_breakpoints_s_z) {
+    expect(Math.abs(zAt(parts, s)! - z)).toBeLessThanOrEqual(TOL)
+  }
+})
+
+test('M3 · DTM tanpa STR pasangan → pesan "Pilih STR pasangan"', async ({ page }) => {
+  await openApp(page)
+  await page.getByTestId('surface-input').setInputFiles(fx('surpac/bench.dtm'))
+  await expect(page.getByTestId('import-error')).toContainText('Pilih STR pasangan')
+})

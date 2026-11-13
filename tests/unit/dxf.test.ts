@@ -52,14 +52,15 @@ function face3(layer: string, pts: number[][], handle = '1'): [number, string | 
 }
 
 describe('batas ukuran surface (sebelum membaca isi)', () => {
-  it('konstanta 25.000.000 byte', () => {
-    expect(MAX_SURFACE_BYTES).toBe(25_000_000)
+  it('konstanta 50.000.000 byte (keputusan pemilik 2026-11-13; rencana awal 25.000.000)', () => {
+    expect(MAX_SURFACE_BYTES).toBe(50_000_000)
   })
 
   for (const [size, accepted] of [
-    [24_999_999, true],
-    [25_000_000, true],
-    [25_000_001, false],
+    [26_044_478, true], // ukuran ekspor DXF 3D site pa_tes_3d.dxf
+    [49_999_999, true],
+    [50_000_000, true],
+    [50_000_001, false],
   ] as const) {
     it(`${size} byte → ${accepted ? 'diterima' : 'ditolak tanpa dibaca'}`, async () => {
       const f = fakeFile('s.dxf', size, '')

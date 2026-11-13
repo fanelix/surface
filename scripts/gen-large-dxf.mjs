@@ -3,7 +3,7 @@
  * Membangkitkan surface DXF ASCII 3DFACE sintetis dengan banyak segitiga nyata
  * (grid bergelombang dengan bench), bukan padding, untuk tolok ukur M7.
  *
- *   node scripts/gen-large-dxf.mjs --bytes 24900000 --out tests/fixtures/large/large_25mb.dxf
+ *   node scripts/gen-large-dxf.mjs --bytes 49990000 --out tests/fixtures/large/large_50mb.dxf
  *
  * Ukuran akhir mendekati --bytes tanpa melebihinya. Koordinat sekitar E 700000, N 9100000.
  */

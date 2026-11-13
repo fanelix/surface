@@ -17,7 +17,7 @@ npm ci
 npm run dev          # server pengembangan
 npm run check        # typecheck + lint + unit test + build
 npm run test:e2e     # Playwright (chromium), membangun dan menjalankan preview lokal
-npm run gen:bench    # membangkitkan DXF 0,5 / 5 / ~25 MB di tests/fixtures/large/ (diabaikan git)
+npm run gen:bench    # membangkitkan DXF 0,5 / 5 / ~25 / ~50 MB di tests/fixtures/large/ (diabaikan git)
 npm run bench        # tolok ukur impor dan profil, 3 pengulangan (sintaks env POSIX; di Windows pakai WSL/Git Bash)
 ```
 
