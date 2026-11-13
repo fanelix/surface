@@ -18,7 +18,8 @@ selisih bertanda/absolut, dan hasil PASS/FAIL. Berkas site disimpan hanya di `pr
 | Satu profil A–B dari Surpac | E/N kedua ujung + elevasi crest, toe, titik patah bench | PENDING |
 | Satu titik dan satu lubang bor yang diketahui | Konvensi dip, utara grid, MD, offset kiri/kanan | PENDING |
 | Gaya Surpac (`.ssi`) | Tidak dibutuhkan aplikasi | Diterima `pa_tes.ssi` (hanya gaya tampilan; tidak dibaca) |
-| Laptop kerja target | Spesifikasi untuk QA | Diterima: RAM 16 GB, GPU NVIDIA GTX 1050 Ti (CPU/browser belum disebut). Pengukuran di laptop itu **PENDING** |
+| Laptop kerja target | Spesifikasi untuk QA | Diterima: RAM 16 GB, GPU NVIDIA GTX 1050 Ti. Pengukuran di laptop **dikecualikan** pemilik repo (2026-11-13) |
+| Surface acuan penampang | DTM/STR atau DXF 3D | **DTM/STR** (`pa_tes.dtm` + `pa_tes.str`) — keputusan pemilik repo (2026-11-13) |
 
 ## 2. Toleransi lapangan (ditetapkan SEBELUM melihat selisih)
 
@@ -80,7 +81,8 @@ dibandingkan dengan kode geometri aplikasi. Hanya statistik; tanpa koordinat sit
 
 Kesimpulan teknis: pembaca DTM/STR (penomoran vertex, urutan Y/X, Z) **terkonfirmasi** oleh ekspor 3DFACE Surpac
 pada tingkat ≤ 1 mm. Selisih profil yang besar berasal dari perbedaan **triangulasi** antar kedua ekspor, bukan dari
-pembaca. Surface mana yang menjadi acuan desain/penampang, dan toleransi profilnya, adalah keputusan engineer (§2).
+pembaca. **Keputusan pemilik (2026-11-13): DTM/STR menjadi surface acuan penampang.** DXF 3D hanya dipakai sebagai
+pembanding pembaca; profil dari DXF 3D tidak dipakai sebagai acuan. Toleransi profil tetap ditetapkan engineer (§2).
 
 ## 5. Hasil aplikasi pada sampel site `pa_tes` (2026-11-05, container sesi agen)
 
@@ -100,9 +102,9 @@ pembaca. Surface mana yang menjadi acuan desain/penampang, dan toleransi profiln
 | `pa_tes_3d.dxf` (26.044.478 B) | 607 ms; unit inci → aplikasi meminta konfirmasi meter | 64.858 | +56 MB |
 | `pa_tes.dtm` + `pa_tes.str` | 635 ms | 137.512 | +39 MB |
 
-Yang masih dibutuhkan untuk menutup M3/M8: satu profil A–B acuan dari Surpac, satu titik/bor acuan, toleransi
-lapangan, keputusan surface acuan (DTM vs DXF 3D), serta versi Surpac/opsi ekspor. Jumlah segitiga, batas E/N/Z,
-≥ 3 titik kontrol, dan grid/datum dikecualikan pemilik (2026-11-13).
+Yang masih dibutuhkan untuk menutup M3/M8: satu profil A–B acuan dari Surpac **pada DTM `pa_tes`**, satu titik/bor
+acuan, toleransi lapangan, serta versi Surpac/opsi ekspor. Dikecualikan pemilik (2026-11-13): jumlah segitiga, batas
+E/N/Z, ≥ 3 titik kontrol, grid/datum, dan pengukuran di laptop target. Surface acuan: DTM/STR.
 
 ## 6. Hasil sintetis yang sudah teruji (pembanding, bukan pengganti site)
 

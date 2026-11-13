@@ -61,7 +61,11 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 - **Dikecualikan dari penerimaan:** jumlah segitiga, batas E/N/Z, ≥ 3 titik kontrol, grid/datum.
 - **Batas ukuran surface dinaikkan dari 25.000.000 menjadi 50.000.000 byte per berkas** (menggantikan angka di
   IMPLEMENTATION_PLAN.md bagian 2 dan M2), karena ekspor DXF 3D site `pa_tes_3d.dxf` berukuran 26.044.478 byte.
-- **Laptop kerja target:** RAM 16 GB, GPU NVIDIA GTX 1050 Ti.
+- **Laptop kerja target:** RAM 16 GB, GPU NVIDIA GTX 1050 Ti. **Pengukuran di laptop tidak dilakukan** (keputusan
+  pemilik, 2026-11-13); angka kinerja container menjadi acuan indikatif.
+- **Surface acuan penampang = DTM/STR Surpac** (`pa_tes.dtm` + `pa_tes.str`), bukan DXF 3D (keputusan pemilik,
+  2026-11-13). DXF 3D tetap dibaca aplikasi, tetapi triangulasinya lebih kasar (±48% titik) sehingga profilnya bisa
+  berbeda hingga beberapa meter dari DTM (`docs/acceptance.md` §4a).
 
 ### Diterapkan
 
@@ -84,11 +88,9 @@ permintaan pemilik repo (metode merge commit agar SHA per-milestone tetap ada di
 
 ### Belum / PENDING
 
-- M8: profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D),
-  versi Surpac/opsi ekspor.
-- Pengukuran di laptop target (16 GB, GTX 1050 Ti).
-- Merge PR #3 menunggu persetujuan pemilik; setelah merge, produksi perlu diverifikasi ulang (adapter Surpac dan
-  batas 50 MB baru ada di produksi setelah merge).
+- M8: profil A–B acuan Surpac (dari DTM), titik/bor acuan, toleransi lapangan, versi Surpac/opsi ekspor.
+- Selesai sejak catatan awal: surface acuan diputuskan (DTM/STR); pengukuran laptop dikecualikan; PR #3 di-merge dan
+  produksi diverifikasi (lihat di atas).
 
 ## Verifikasi sesi Codex (2026-11-05)
 
@@ -323,19 +325,19 @@ GTX 1050 Ti): pengukuran **PENDING**.
 - **Status Surpac site:** varian teks `pa_tes` terverifikasi struktur/topologi **dan dikonfirmasi oleh ekspor 3DFACE
   Surpac independen** (2026-11-13, 5/5 tes site lokal lulus). Jumlah segitiga, batas, 3 kontrol, grid dikecualikan
   pemilik; profil A–B acuan, titik/bor acuan dan toleransi **PENDING**
-- **Status QA laptop target:** spesifikasi diterima (16 GB RAM, GTX 1050 Ti); pengukuran PENDING
+- **Status QA laptop target:** **dikecualikan** pemilik (2026-11-13); spesifikasi tercatat (16 GB RAM, GTX 1050 Ti),
+  kinerja hanya diukur di container (DXF ~50 MB impor median 1,40 s, profil 53 ms)
 - **Status Netlify:** produksi `1b810bb` terverifikasi (aset identik, e2e 20/20, smoke test site asli, 0 request keluar); Deploy Preview masih HTTP 401 dari container
 - **URL aktual dan kesetaraan aset:** <https://slopeview.netlify.app/> — build identik dengan `main` `50e7461`;
   metadata SHA commit deploy internal Netlify tidak tersedia pada sesi Codex
 - **Klaim yang boleh dibuat saat ini:** aplikasi produksi di URL di atas membaca DXF 3DFACE/POLYFACE dan pasangan
   Surpac DTM/STR teks (varian `pa_tes`, dikonfirmasi ekspor 3DFACE Surpac ≤ 1 mm di vertex), hingga 50.000.000 byte per
-  berkas. Belum boleh diklaim: kesesuaian profil terhadap profil acuan Surpac dan toleransi lapangan (M8), serta
-  kinerja di laptop target.
+  berkas. Surface acuan penampang: DTM/STR. Belum boleh diklaim: kesesuaian profil terhadap profil acuan Surpac dan
+  toleransi lapangan (M8). Kinerja di laptop target tidak diukur (dikecualikan pemilik); angka container bersifat indikatif.
 
 ## Hambatan, pemilik tindakan, bagian lain yang dapat dilanjutkan
 
 | Hambatan | Pemilik | Dapat dilanjutkan sementara |
 |---|---|---|
-| Profil A–B acuan Surpac, titik/bor acuan, toleransi lapangan, keputusan surface acuan (DTM vs DXF 3D) | Engineer geoteknik/survey | Impor DTM/STR dan DXF 3D `pa_tes` sudah berjalan dan saling cocok ≤ 1 mm di vertex |
+| Profil A–B acuan Surpac dari DTM, titik/bor acuan, toleransi lapangan | Engineer geoteknik/survey | Impor DTM/STR (acuan) dan DXF 3D `pa_tes` sudah berjalan di produksi dan saling cocok ≤ 1 mm di vertex |
 | Badge/HUD Netlify menutupi tabel; verifikasi Deploy Preview | Pemilik repo | Produksi lulus e2e dan audit jaringan |
-| Benchmark laptop kerja (16 GB RAM, GTX 1050 Ti) | Engineer | Angka container di atas, termasuk ~50 MB, sebagai indikasi |
